@@ -1,0 +1,282 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Users {
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  name             String
+  email            String?
+  phone            String?
+  image            String?
+  password         String
+  isAdmin          Boolean        @default(false)
+  credit           Int            @default(0)
+  createAt         DateTime       @default(now())
+  passwordUpdateAt DateTime       @default(now())
+  isVerified       Boolean        @default(false)
+  institute        institute[]
+  question_set     question_set[]
+  exams            exams[]
+  subscriptions    Subscription[]
+  payments         Payment[]
+  currentPackage   String         @default("Free")
+
+  @@index([email])
+  @@index([phone])
+}
+
+model OtpMail {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  otp          String   @unique
+  otpToken     String
+  email        String?
+  phone        String?
+  type         String // "email" or "phone"
+  purpose      String // "register" or "login" or "reset"
+  sentDateTime DateTime @default(now())
+  expiresAt    DateTime
+  isUsed       Boolean  @default(false)
+}
+
+model board {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  classes      classes[]
+  createdAt    DateTime       @default(now())
+  question_set question_set[]
+}
+
+model classes {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  boardId      String         @db.ObjectId
+  board        board          @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  books        books[]
+  createdAt    DateTime       @default(now())
+  question_set question_set[]
+}
+
+model books {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  cover        String
+  classId      String         @db.ObjectId
+  class        classes        @relation(fields: [classId], references: [id], onDelete: Cascade)
+  chapter      chapter[]
+  question_set question_set[]
+  date         DateTime       @default(now())
+}
+
+model chapter {
+  id     String   @id @default(auto()) @map("_id") @db.ObjectId
+  name   String
+  serial Int
+  bookId String   @db.ObjectId
+  book   books    @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  lesson lesson[]
+
+  @@index([bookId])
+}
+
+model lesson {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  serial    Int
+  name      String
+  chapterId String      @db.ObjectId
+  chapter   chapter     @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  options   options[]
+  context   context[]
+  questions questions[]
+
+  @@index([chapterId])
+}
+
+model category {
+  id        String      @id @default(auto()) @map("_id") @db.ObjectId
+  name      String
+  type      String
+  isRTL     Boolean     @default(false)
+  questions questions[]
+  options   options[]
+  context   context[]
+}
+
+model context {
+  id         String      @id @default(auto()) @map("_id") @db.ObjectId
+  text       String
+  questions  questions[]
+  options    options[]
+  lessonId   String      @db.ObjectId
+  categoryId String      @db.ObjectId
+  lesson     lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  category   category    @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([categoryId])
+  @@index([lessonId, categoryId])
+}
+
+model questions {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  categoryId String    @db.ObjectId
+  category   category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  question   String
+  details    String?
+  table      String?
+  lessonId   String    @db.ObjectId
+  lesson     lesson    @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  options    options[]
+  contextId  String?   @db.ObjectId
+  context    context?  @relation(fields: [contextId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@index([categoryId])
+  @@index([contextId])
+  @@index([lessonId, categoryId])
+}
+
+model options {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  questionId String    @db.ObjectId
+  categoryId String?   @db.ObjectId
+  category   category? @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  lessonId   String?   @db.ObjectId
+  lesson     lesson?   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  question   questions @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  contextId  String?   @db.ObjectId
+  context    context?  @relation(fields: [contextId], references: [id], onDelete: Cascade)
+}
+
+model institute {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  image        String?
+  name         String
+  phone        String
+  address      String?
+  date         DateTime       @default(now())
+  userId       String         @db.ObjectId
+  user         Users          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  question_set question_set[]
+}
+
+model exams {
+  id           String         @id @default(auto()) @map("_id") @db.ObjectId
+  examName     String
+  user         Users          @relation(fields: [usersId], references: [id])
+  question_set question_set[]
+  usersId      String         @db.ObjectId
+  type         String
+}
+
+enum numberType {
+  roman
+  bangla
+  english
+  arabic
+}
+
+model question_set {
+  id             String        @id @default(auto()) @map("_id") @db.ObjectId
+  instituteId    String        @db.ObjectId
+  institute      institute     @relation(fields: [instituteId], references: [id], onDelete: Cascade)
+  bookId         String        @db.ObjectId
+  book           books         @relation(fields: [bookId], references: [id], onDelete: Cascade)
+  bookName       String?
+  className      String?
+  classId        String        @db.ObjectId
+  class          classes       @relation(fields: [classId], references: [id], onDelete: Cascade)
+  boardId        String        @db.ObjectId
+  board          board         @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  subject        String
+  examName       exams         @relation(fields: [examsId], references: [id])
+  durationHour   String
+  durationMinute String
+  totalMarks     String
+  date           DateTime      @default(now())
+  userId         String        @db.ObjectId
+  user           Users         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  serial         Int           @default(1)
+  type           String
+  examsId        String        @db.ObjectId
+  printed        Boolean       @default(false)
+  questions      Json?
+  numberType     numberType    @default(roman)
+  subscriptionId String?       @db.ObjectId
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+
+  @@index([subscriptionId])
+}
+
+model Package {
+  id                String         @id @default(auto()) @map("_id") @db.ObjectId
+  name              String // Can change anytime
+  slug              String         @unique // "free", "beginner" - for URL/code reference
+  numberOfQuestions Int
+  displayName       String // "Free", "Beginner" - for UI display
+  price             Float          @default(0)
+  offerPrice        Float?
+  currency          String         @default("BDT")
+  duration          String // "monthly", "yearly", "lifetime"
+  isActive          Boolean        @default(true) // Can disable packages
+  features          Json // Dynamic feature flags
+  limits            Json // Dynamic limits
+  sortOrder         Int // For display ordering
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  subscriptions     Subscription[]
+  payments          Payment[]
+}
+
+model Feature {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  key         String   @unique // "dragAndDrop", "customEdit"
+  name        String // "Drag and Drop", "Custom Edit"
+  description String?
+  category    String? // "editing", "export", "storage"
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+model Payment {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String         @db.ObjectId
+  user          Users          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packageId     String         @db.ObjectId
+  package       Package        @relation(fields: [packageId], references: [id])
+  price         Float
+  discount      Float?         @default(0)
+  finalPrice    Float // price - discount
+  phoneNumber   String // must provide phone number 
+  transactionId String?        @unique
+  paymentStatus String         @default("pending") // "pending", "completed", "failed", "refunded"
+  paymentMethod String? // "card", "bkash", "nagad", "paypal", etc.
+  currency      String         @default("BDT")
+  notes         String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  userId        String         @db.ObjectId
+  user          Users          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  packageId     String         @db.ObjectId
+  package       Package        @relation(fields: [packageId], references: [id])
+  paymentId     String         @db.ObjectId
+  payment       Payment        @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+  startDate     DateTime       @default(now())
+  endDate       DateTime
+  isActive      Boolean        @default(false) // Admin approval - whether this subscription is approved
+  userActive    Boolean        @default(false) // User selection - which subscription user is currently using
+  questionLimit Int            @default(0) // Accumulated question limit (base + purchased)
+  usageCount    Json? // Track usage like { questionSetsUsed: 5 }
+  createdAt     DateTime       @default(now())
+  questionSets  question_set[] // Question sets created under this subscription
+}
