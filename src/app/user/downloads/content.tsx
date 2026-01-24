@@ -153,14 +153,14 @@ export function renderStackFractionInline(question: string) {
     const denominator = parts[1].trim();
     if (numerator === "[]" || denominator === "[]") return null;
     return (
-      <span className="inline-flex items-center gap-1">
-        <span>{renderTextWithFractions(numerator)}</span>
-        <span>--------</span>
-        <span>{renderTextWithFractions(denominator)}</span>
-      </span>
+      <div className="inline-flex items-center gap-1">
+        <div>{renderTextWithFractions(numerator)}</div>
+        <div>--------</div>
+        <div>{renderTextWithFractions(denominator)}</div>
+      </div>
     );
   }
-  return <span>{renderTextWithFractions(question)}</span>;
+  return <div className="inline-block">{renderTextWithFractions(question)}</div>;
 }
 
 export function renderStackFractionVertical(question: string) {
@@ -213,7 +213,7 @@ const renderGroupHeader = (set: any, group: any, visualIndex: number, isRTL: boo
   const label = group.any && group.anyMode ? getAnyLabel(group.anyMode, count) : "";
 
   return (
-    <div className="flex flex-wrap items-baseline w-full">
+    <div className="flex flex-wrap items-baseline w-full" style={{ marginTop: "10px" }}>
       <div className="font-bold">
         {convertIndex(set?.type, visualIndex, isRTL)} {group?.name}&nbsp;{label}
       </div>
@@ -230,10 +230,14 @@ export const QuestionComponent = ({ isRTL, ...set }: any) => {
   let visualIndex = 0;
   return (
     <div className="w-full space-y-0.5 text-black">
-      <div className={`avoid-break text-center font-semibold text-black ${set?.institute?.name.length > 80 ? "text-xl" : set?.institute?.name.length > 50 ? "text-2xl" : "text-3xl"}`}>
+      <div className={`avoid-break text-center font-bold text-black whitespace-nowrap mb-2 ${set?.institute?.name.length > 60 ? "text-xl" :
+        set?.institute?.name.length > 50 ? "text-2xl" :
+          set?.institute?.name.length > 40 ? "text-3xl" :
+            set?.institute?.name.length > 30 ? "text-4xl" : "text-5xl"
+        }`}>
         {set?.institute?.name}
       </div>
-      <div className="avoid-break text-center text-lg font-semibold text-black">{set?.examName?.examName}</div>
+      <div className="avoid-break text-center text-2xl font-semibold text-black mt-2">{set?.examName?.examName}</div>
       <div className="avoid-break text-center text-xl text-black">{set?.className ?? set?.class?.name}</div>
       <div className="avoid-break text-center text-lg text-black">{subject(set?.type)}{set?.subject}</div>
       <div className="flex items-start justify-between text-center text-lg">
@@ -265,9 +269,9 @@ export const QuestionComponent = ({ isRTL, ...set }: any) => {
                       <div className="avoid-break">
                         <div className="flex flex-wrap items-baseline gap-2 w-full justify-between">
                           <div className="flex items-baseline">
-                            <p style={{ pageBreakInside: "avoid", orphans: 2, widows: 2, margin: 0 }}>
+                            <div style={{ pageBreakInside: "avoid", orphans: 2, widows: 2, margin: 0 }}>
                               {set?.type === "bn" ? `${banglaAlphabet[index]})` : set?.type === "ar" ? `${arabicAlphabet[index]})` : `${englishAlphabet[index]})`} {renderTextWithFractions(item?.name)}
-                            </p>
+                            </div>
                             {item.any && item.anyMode && <span className="mx-1 font-bold">{getAnyLabel(item.anyMode, getAnswerCount(item))}</span>}
                           </div>
                           {renderEquationPart(set, item) && (
@@ -295,7 +299,7 @@ export const QuestionComponent = ({ isRTL, ...set }: any) => {
                               <div className={`avoid-break space-y-0 ${s === item?.questions?.length - 1 ? "leading-normal" : "leading-tight"}`}>
                                 <div className="flex items-start gap-1 font-semibold">
                                   {item.numbering === "bangla" || (set?.type === "bn" && item.numbering !== "roman") ? `${banglaAlphabet[s]})` : item.numbering === "english" || (set?.type === "en" && item.numbering !== "roman") ? `${englishAlphabet[s]})` : item.numbering === "arabic" || (set?.type === "ar" && item.numbering !== "roman") ? `${arabicAlphabet[s]})` : `(${romanNumerals[s]})`}
-                                  <p style={{ pageBreakInside: "avoid", orphans: 2, widows: 2, margin: 0 }}>{renderTextWithFractions(qs?.question)}</p>
+                                  <div style={{ pageBreakInside: "avoid", orphans: 2, widows: 2, margin: 0 }}>{renderTextWithFractions(qs?.question)}</div>
                                 </div>
                                 <div className={`grid ${(() => {
                                   const maxLen = Math.max(...(qs?.options?.map((o: any) => (o.name || "").length) || [0]));
@@ -306,7 +310,7 @@ export const QuestionComponent = ({ isRTL, ...set }: any) => {
                                   {qs?.options?.map((rs: any, q: number) => (
                                     <div className="ml-[14px] mt-0 flex items-start gap-1" key={q}>
                                       {getFormattedNumber(q, item.optionNumbering || item.numbering || "roman")}
-                                      <p style={{ pageBreakInside: "avoid", orphans: 2, widows: 2, margin: 0 }}>{renderTextWithFractions(rs?.name)}</p>
+                                      <div style={{ pageBreakInside: "avoid", orphans: 2, widows: 2, margin: 0 }}>{renderTextWithFractions(rs?.name)}</div>
                                     </div>
                                   ))}
                                 </div>
@@ -348,7 +352,7 @@ export const QuestionComponent = ({ isRTL, ...set }: any) => {
                             <div key={q} className={`avoid-break space-y-0 ${q === item?.questions?.length - 1 ? "leading-normal" : "leading-tight"}`}>
                               <div className="ml-[16px] mt-0 flex gap-1">
                                 {getFormattedNumber(q, item.numbering || "roman")}
-                                <p className="" style={{ margin: 0 }}>{renderStackFractionInline(ques.question ?? "")}</p>
+                                <div className="" style={{ margin: 0 }}>{renderStackFractionInline(ques.question ?? "")}</div>
                               </div>
                             </div>
                           ))}
@@ -384,7 +388,7 @@ export const QuestionComponent = ({ isRTL, ...set }: any) => {
                       <div className={`avoid-break space-y-0 ${s === group?.questions?.length - 1 ? "leading-normal" : "leading-tight"}`}>
                         <div className="flex items-start gap-1 font-semibold">
                           {getFormattedNumber(s, group.numbering || "roman")}
-                          <p style={{ pageBreakInside: "avoid", orphans: 2, widows: 2, margin: 0 }}>{renderTextWithFractions(qs?.question)}</p>
+                          <div style={{ pageBreakInside: "avoid", orphans: 2, widows: 2, margin: 0 }}>{renderTextWithFractions(qs?.question)}</div>
                         </div>
                         <div className={`grid ${(() => {
                           const maxLen = Math.max(...(qs?.options?.map((o: any) => (o.name || "").length) || [0]));
@@ -395,7 +399,7 @@ export const QuestionComponent = ({ isRTL, ...set }: any) => {
                           {qs?.options?.map((rs: any, q: number) => (
                             <div className="ml-[16px] flex items-start gap-1" key={q}>
                               {getFormattedNumber(q, group.optionNumbering || group.numbering || "roman")}
-                              <p style={{ pageBreakInside: "avoid", orphans: 2, widows: 2, margin: 0 }}>{renderTextWithFractions(rs?.name)}</p>
+                              <div style={{ pageBreakInside: "avoid", orphans: 2, widows: 2, margin: 0 }}>{renderTextWithFractions(rs?.name)}</div>
                             </div>
                           ))}
                         </div>
@@ -472,7 +476,7 @@ export const QuestionComponent = ({ isRTL, ...set }: any) => {
                     <div key={q} className={`avoid-break space-y-0 ${q === group?.questions?.length - 1 ? "leading-normal" : "leading-tight"}`}>
                       <div className="ml-[16px] mt-0 flex gap-1">
                         {getFormattedNumber(q, group.numbering || "roman")}
-                        <p className="" style={{ pageBreakInside: "avoid", orphans: 2, widows: 2, margin: 0 }}>{renderTextWithFractions(ques.question)}</p>
+                        <div className="" style={{ pageBreakInside: "avoid", orphans: 2, widows: 2, margin: 0 }}>{renderTextWithFractions(ques.question)}</div>
                       </div>
                     </div>
                   ))}

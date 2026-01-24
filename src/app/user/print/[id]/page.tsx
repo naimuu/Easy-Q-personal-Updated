@@ -150,6 +150,23 @@ export default function Page() {
   // const { isRTL, setRTL } = useRTL(); // Removed to avoid redeclaration, using initial declaration
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // Block Ctrl+P (Print), Ctrl+S (Save), Ctrl+Shift+I (DevTools), Ctrl+U (Source)
+      if (
+        (e.ctrlKey && (e.key === "p" || e.key === "s" || e.key === "u")) ||
+        (e.ctrlKey && e.shiftKey && (e.key === "I" || e.key === "J" || e.key === "C")) ||
+        e.key === "F12"
+      ) {
+        e.preventDefault();
+        toast.warning("Protection enabled: Action not allowed.");
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  useEffect(() => {
     if (set?.questions?.length) {
       const settingsGroup = set.questions.find((g: any) => g.id === "settings");
       if (settingsGroup && settingsGroup.isRTL !== undefined && settingsGroup.isRTL !== isRTL) {
@@ -256,101 +273,120 @@ export default function Page() {
       }
       isOpen={isOpen}
     >
-      <div className="relative flex h-full flex-col overflow-hidden">
-        <div className="sticky top-0 z-50 flex justify-center gap-6 bg-white py-4 shadow-sm">
-          <Button
-            onClick={() => {
-              router.push(getLocalStorage("back_url") || "/user");
-              //back_url
-            }}
-          >
-            <ArrowLeft />
-          </Button>
-          {canPdfExport && (
+      <div
+        onContextMenu={(e) => e.preventDefault()}
+        onCopy={(e) => e.preventDefault()}
+        onDragStart={(e) => e.preventDefault()}
+        className="select-none"
+      >
+        <style jsx global>{`
+        @media print {
+          body { display: none !important; }
+        }
+        .no-select {
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          user-select: none;
+        }
+      `}</style>
+        <div className="relative flex h-full flex-col overflow-hidden">
+          <div className="sticky top-0 z-50 flex justify-center gap-6 bg-white py-4 shadow-sm">
             <Button
-              loading={loading}
               onClick={() => {
-                if (!canPdfExport) {
+                router.push(getLocalStorage("back_url") || "/user");
+                //back_url
+              }}
+            >
+              <ArrowLeft />
+            </Button>
+            {canPdfExport && (
+              <Button
+                loading={loading}
+                onClick={() => {
+                  if (!canPdfExport) {
+                    setShowSubscriptionModal(true);
+                    return;
+                  }
+                  setIsDownloadModalOpen(true);
+                }}
+                className="relative overflow-visible"
+              >
+                ডাউনলোড
+                {!canPdfExport && (
+                  <Lock className="absolute -right-1.5 -top-1.5 h-4 w-4 rounded-full bg-orange-500 p-0.5 text-white shadow-md" />
+                )}
+              </Button>
+            )}
+            {!canPdfExport && (
+              <Button
+                loading={loading}
+                onClick={() => {
                   setShowSubscriptionModal(true);
-                  return;
-                }
-                setIsDownloadModalOpen(true);
-              }}
-              className="relative overflow-visible"
-            >
-              ডাউনলোড
-              {!canPdfExport && (
+                }}
+                className="relative overflow-visible"
+              >
+                ডাউনলোড
                 <Lock className="absolute -right-1.5 -top-1.5 h-4 w-4 rounded-full bg-orange-500 p-0.5 text-white shadow-md" />
-              )}
-            </Button>
-          )}
-          {!canPdfExport && (
-            <Button
-              loading={loading}
-              onClick={() => {
-                setShowSubscriptionModal(true);
-              }}
-              className="relative overflow-visible"
-            >
-              ডাউনলোড
-              <Lock className="absolute -right-1.5 -top-1.5 h-4 w-4 rounded-full bg-orange-500 p-0.5 text-white shadow-md" />
-            </Button>
-          )}
-          {canPreview && (
-            <Button onClick={() => handleGenerate(false)}>
-              প্রিন্ট ফরম্যাট
-            </Button>
-          )}
-          {!canPreview && (
-            <Button
-              onClick={() => {
-                setShowSubscriptionModal(true);
-              }}
-              className="relative overflow-visible"
-            >
-              প্রিন্ট ফরম্যাট
-              <Lock className="absolute -right-1.5 -top-1.5 h-4 w-4 rounded-full bg-orange-500 p-0.5 text-white shadow-md" />
-            </Button>
-          )}
-        </div>
-        <div className="flex-1 overflow-hidden">
-          {isGeneratingInitial ? (
-            <div className="flex h-full items-center justify-center">
-              <div className="text-center">
-                <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
-                <p className="text-gray-600">প্রিভিউ তৈরি হচ্ছে...</p>
+              </Button>
+            )}
+            {canPreview && (
+              <Button onClick={() => handleGenerate(false)}>
+                প্রিন্ট ফরম্যাট
+              </Button>
+            )}
+            {!canPreview && (
+              <Button
+                onClick={() => {
+                  setShowSubscriptionModal(true);
+                }}
+                className="relative overflow-visible"
+              >
+                প্রিন্ট ফরম্যাট
+                <Lock className="absolute -right-1.5 -top-1.5 h-4 w-4 rounded-full bg-orange-500 p-0.5 text-white shadow-md" />
+              </Button>
+            )}
+          </div>
+          <div className="flex-1 overflow-hidden">
+            {isGeneratingInitial ? (
+              <div className="flex h-full items-center justify-center">
+                <div className="text-center">
+                  <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-gray-300 border-t-blue-600"></div>
+                  <p className="text-gray-600">প্রিভিউ তৈরি হচ্ছে...</p>
+                </div>
               </div>
-            </div>
-          ) : initialPdfUrl ? (
-            <iframe
-              src={`${initialPdfUrl}#toolbar=0`}
-              className="h-full w-full"
-              style={{ minHeight: "80vh" }}
-            ></iframe>
-          ) : (
-            <A4PreviewContainer>
-              <div className="a4-page-content text-[12px]">
-                <QuestionComponent {...set} isRTL={isRTL} />
-              </div>
-            </A4PreviewContainer>
-          )}
+            ) : initialPdfUrl ? (
+              <iframe
+                src={`${initialPdfUrl}#toolbar=0`}
+                className="h-full w-full"
+                style={{ minHeight: "80vh" }}
+              ></iframe>
+            ) : (
+              <A4PreviewContainer>
+                <div className="a4-page-content text-[12px]">
+                  <QuestionComponent {...set} isRTL={isRTL} />
+                </div>
+              </A4PreviewContainer>
+            )}
+          </div>
         </div>
-      </div>
-      <SubscriptionUpgradeModal
-        isOpen={showSubscriptionModal}
-        onClose={() => setShowSubscriptionModal(false)}
-      />
-      <ConfirmationModal
-        isOpen={isDownloadModalOpen}
-        onClose={() => setIsDownloadModalOpen(false)}
-        onConfirm={() => handleGenerate(true)}
-        title="ডাউনলোড নিশ্চিত করুন"
-        description="এই ফাইলটি ডাউনলোড করার পর এই প্রশ্নে আর পরিবর্তন করতে পারবেন না!"
-        confirmText="ডাউনলোড করুন"
-        cancelText="বাতিল"
-        confirmButtonClass="bg-blue-600 text-white hover:bg-blue-700"
-      />
+        <SubscriptionUpgradeModal
+          isOpen={showSubscriptionModal}
+          onClose={() => setShowSubscriptionModal(false)}
+        />
+        <ConfirmationModal
+          isOpen={isDownloadModalOpen}
+          onClose={() => setIsDownloadModalOpen(false)}
+          onConfirm={() => handleGenerate(true)}
+          title="ডাউনলোড নিশ্চিত করুন"
+          description="এই ফাইলটি ডাউনলোড করার পর এই প্রশ্নে আর পরিবর্তন করতে পারবেন না!"
+          confirmText="ডাউনলোড করুন"
+          cancelText="বাতিল"
+          confirmButtonClass="bg-blue-600 text-white hover:bg-blue-700"
+        />
     </ModalLayout>
+      </div >
+    </div >
   );
 }
 

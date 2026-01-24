@@ -97,20 +97,21 @@ const styles = StyleSheet.create({
 });
 
 const MyPDF = ({ data }: { data: any }) => (
-    
+
   <Document>
     <Page size="A4" style={styles.page}>
       <Text
+        wrap={false}
         style={[
           styles.headLine,
           styles.section,
           {
             fontSize:
-              data?.institute?.name?.length > 80
-                ? 20
-                : data?.institute?.name?.length > 50
-                  ? 24
-                  : 30,
+              data?.institute?.name?.length > 70 ? 22 :
+                data?.institute?.name?.length > 60 ? 26 :
+                  data?.institute?.name?.length > 50 ? 32 :
+                    data?.institute?.name?.length > 40 ? 38 : 44,
+            marginBottom: 20,
           },
         ]}
       >
@@ -118,8 +119,9 @@ const MyPDF = ({ data }: { data: any }) => (
       </Text>
       <Text
         style={{
-          fontSize: 18,
+          fontSize: 22,
           textAlign: "center",
+          marginTop: 18,
         }}
       >
         {data?.examName?.examName}
@@ -150,7 +152,7 @@ const MyPDF = ({ data }: { data: any }) => (
       <View style={{ flexDirection: "column", marginTop: 30 }}>
         {data?.questions?.map((group: QuestionType, i: number) =>
           group.type === "passage-based" ? (
-            <View style={{ flexDirection: "column" }} key={i}>
+            <View style={{ flexDirection: "column", marginTop: 10 }} key={i}>
               <Text style={styles.text}>
                 {convertIndex(data?.type, i + 1)}{" "} {group?.name}
               </Text>
@@ -206,16 +208,16 @@ const MyPDF = ({ data }: { data: any }) => (
                             <View style={{ marginLeft: 10 }} key={s}>
                               <Text>
                                 {item.numbering === "bangla" ||
-                                (data?.type === "bn" &&
-                                  item.numbering !== "roman")
+                                  (data?.type === "bn" &&
+                                    item.numbering !== "roman")
                                   ? `${banglaAlphabet[s]})`
                                   : item.numbering === "english" ||
-                                      (data?.type === "en" &&
-                                        item.numbering !== "roman")
+                                    (data?.type === "en" &&
+                                      item.numbering !== "roman")
                                     ? `${englishAlphabet[s]})`
                                     : item.numbering === "arabic" ||
-                                        (data?.type === "ar" &&
-                                          item.numbering !== "roman")
+                                      (data?.type === "ar" &&
+                                        item.numbering !== "roman")
                                       ? `${arabicAlphabet[s]})`
                                       : `${romanNumerals[s]})`}{" "}
                                 {qs?.question}
@@ -280,7 +282,7 @@ const MyPDF = ({ data }: { data: any }) => (
               </View>
             </View>
           ) : group.type === "table" ? (
-            <View style={{ flexDirection: "column", gap: 6 }} key={i}>
+            <View style={{ flexDirection: "column", gap: 6, marginTop: 10 }} key={i}>
               <View
                 style={{
                   flexDirection: "row",
@@ -304,7 +306,7 @@ const MyPDF = ({ data }: { data: any }) => (
               ))}
             </View>
           ) : group.type === "objective" ? (
-            <View style={{ flexDirection: "column", gap: 6 }} key={i}>
+            <View style={{ flexDirection: "column", gap: 6, marginTop: 10 }} key={i}>
               <View
                 style={{
                   flexDirection: "row",
@@ -361,7 +363,7 @@ const MyPDF = ({ data }: { data: any }) => (
               ))}
             </View>
           ) : group.type === "word" ? (
-            <View style={{ flexDirection: "column", gap: 4 }} key={i}>
+            <View style={{ flexDirection: "column", gap: 4, marginTop: 10 }} key={i}>
               <View
                 style={{
                   flexDirection: "row",
@@ -405,6 +407,7 @@ const MyPDF = ({ data }: { data: any }) => (
                 flexDirection: "row",
                 alignItems: "flex-start",
                 justifyContent: "space-between",
+                marginTop: 10
               }}
             >
               <Text>
@@ -428,6 +431,7 @@ const MyPDF = ({ data }: { data: any }) => (
                   flexDirection: "row",
                   alignItems: "flex-start",
                   justifyContent: "space-between",
+                  marginTop: 10
                 }}
               >
                 <Text>
