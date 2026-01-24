@@ -20,40 +20,40 @@ export default function PassageView({
         value={s.id}
         className="rounded-md border shadow-sm"
       >
-        <Accordion.Header>
-          <Accordion.Trigger className="flex w-full items-start justify-between p-3 text-left font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-800">
+        <Accordion.Header className="flex w-full items-start justify-between p-3 text-left font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-800">
+          <Accordion.Trigger className="flex-1 text-left">
             <div className="line-clamp-3">
               <TextWithFractions text={s.text} />
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                className="h-6 w-6 bg-yellow-500 p-1"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onEdit(s);
-                  //setEditingChapter(chapter);
-                  //setIsOpen(true);
-                }}
-              >
-                <Pencil className="h-4 w-4 text-white" />
-              </Button>
-              <Button
-                className="h-6 w-6 bg-red-500 p-1"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  const confirmed = window.confirm(
-                    "Are you sure you want to delete this passage?",
-                  );
-                  if (confirmed) {
-                    handleDelete(s.id, s.id);
-                  }
-                }}
-              >
-                <Trash2 className="h-4 w-4 text-white" />
-              </Button>
-              <ChevronDown className="AccordionChevron h-4 w-4 transition-transform duration-200" />
-            </div>
           </Accordion.Trigger>
+          <div className="flex items-center gap-2">
+            <Button
+              className="h-6 w-6 bg-yellow-500 p-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEdit(s);
+              }}
+            >
+              <Pencil className="h-4 w-4 text-white" />
+            </Button>
+            <Button
+              className="h-6 w-6 bg-red-500 p-1"
+              onClick={(e) => {
+                e.stopPropagation();
+                const confirmed = window.confirm(
+                  "Are you sure you want to delete this passage?",
+                );
+                if (confirmed) {
+                  handleDelete(s.id, s.id);
+                }
+              }}
+            >
+              <Trash2 className="h-4 w-4 text-white" />
+            </Button>
+            <Accordion.Trigger>
+              <ChevronDown className="AccordionChevron h-4 w-4 transition-transform duration-200" />
+            </Accordion.Trigger>
+          </div>
         </Accordion.Header>
 
         <Accordion.Content>
@@ -83,8 +83,8 @@ export default function PassageView({
                       ))}
                     </div>
                   ) : ["single-question", "fill-gap", "right-wrong"].includes(
-                      category.type,
-                    ) ? (
+                    category.type,
+                  ) ? (
                     <div className="flex flex-col gap-1">
                       {category.questions.map((doc: any, i: number) => (
                         <div

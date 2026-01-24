@@ -111,7 +111,6 @@ const MyPDF = ({ data }: { data: any }) => (
                 data?.institute?.name?.length > 60 ? 26 :
                   data?.institute?.name?.length > 50 ? 32 :
                     data?.institute?.name?.length > 40 ? 38 : 44,
-            marginBottom: 20,
           },
         ]}
       >
@@ -121,7 +120,6 @@ const MyPDF = ({ data }: { data: any }) => (
         style={{
           fontSize: 22,
           textAlign: "center",
-          marginTop: 18,
         }}
       >
         {data?.examName?.examName}

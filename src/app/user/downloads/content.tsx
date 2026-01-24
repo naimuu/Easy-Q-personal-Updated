@@ -153,14 +153,14 @@ export function renderStackFractionInline(question: string) {
     const denominator = parts[1].trim();
     if (numerator === "[]" || denominator === "[]") return null;
     return (
-      <div className="inline-flex items-center gap-1">
-        <div>{renderTextWithFractions(numerator)}</div>
-        <div>--------</div>
-        <div>{renderTextWithFractions(denominator)}</div>
-      </div>
+      <span className="inline-flex items-center gap-1">
+        <span>{renderTextWithFractions(numerator)}</span>
+        <span>--------</span>
+        <span>{renderTextWithFractions(denominator)}</span>
+      </span>
     );
   }
-  return <div className="inline-block">{renderTextWithFractions(question)}</div>;
+  return <span>{renderTextWithFractions(question)}</span>;
 }
 
 export function renderStackFractionVertical(question: string) {
@@ -230,14 +230,14 @@ export const QuestionComponent = ({ isRTL, ...set }: any) => {
   let visualIndex = 0;
   return (
     <div className="w-full space-y-0.5 text-black">
-      <div className={`avoid-break text-center font-bold text-black whitespace-nowrap mb-2 ${set?.institute?.name.length > 60 ? "text-xl" :
+      <div className={`avoid-break text-center font-bold text-black whitespace-nowrap ${set?.institute?.name.length > 60 ? "text-xl" :
         set?.institute?.name.length > 50 ? "text-2xl" :
           set?.institute?.name.length > 40 ? "text-3xl" :
             set?.institute?.name.length > 30 ? "text-4xl" : "text-5xl"
         }`}>
         {set?.institute?.name}
       </div>
-      <div className="avoid-break text-center text-2xl font-semibold text-black mt-2">{set?.examName?.examName}</div>
+      <div className="avoid-break text-center text-2xl font-semibold text-black">{set?.examName?.examName}</div>
       <div className="avoid-break text-center text-xl text-black">{set?.className ?? set?.class?.name}</div>
       <div className="avoid-break text-center text-lg text-black">{subject(set?.type)}{set?.subject}</div>
       <div className="flex items-start justify-between text-center text-lg">
