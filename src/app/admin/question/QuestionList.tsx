@@ -65,7 +65,11 @@ export default function QuestionList() {
             {/* Lesson Content */}
             {lessonId ? (
               <div>
-                <Questions lessonId={lessonId} lessonName={lessonName} />
+                <Questions
+                  lessonId={lessonId}
+                  lessonName={lessonName}
+                  bookId={selectBook} // Added bookId
+                />
               </div>
             ) : (
               <div className="flex h-full min-h-[100px] flex-1 items-center justify-center text-center font-bold text-red-500">

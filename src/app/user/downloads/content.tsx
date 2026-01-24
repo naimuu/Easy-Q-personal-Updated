@@ -142,49 +142,65 @@ function renderTextWithFractions(text: string | null | undefined): React.ReactNo
 
 export function renderStackFractionInline(question: string) {
   if (!question) return null;
-  const parts = question.split("//");
+  // Try split by new separator first, then fallback to old
+  let parts = question.split(";;");
+  if (parts.length !== 2) {
+    parts = question.split("//");
+  }
+
   if (parts.length === 2) {
     const numerator = parts[0].trim();
     const denominator = parts[1].trim();
     if (numerator === "[]" || denominator === "[]") return null;
     return (
       <span className="inline-flex items-center gap-1">
-        <span>{formatNumberForDisplay(numerator)}</span>
+        <span>{renderTextWithFractions(numerator)}</span>
         <span className="font-bold">--------</span>
-        <span>{formatNumberForDisplay(denominator)}</span>
+        <span>{renderTextWithFractions(denominator)}</span>
       </span>
     );
   }
-  return <span>{question}</span>;
+  return <span>{renderTextWithFractions(question)}</span>;
 }
 
 export function renderStackFractionVertical(question: string) {
   if (!question) return null;
-  const parts = question.split("//");
+  // Try split by new separator first, then fallback to old
+  let parts = question.split(";;");
+  if (parts.length !== 2) {
+    parts = question.split("//");
+  }
+
   if (parts.length === 2) {
     const numerator = parts[0] || "";
     const denominator = parts[1]?.trim() || "";
     const numeratorLines = numerator.split(/\r?\n/).map((l) => (l.trim() === "[]" ? "" : l.trim()));
-    const cleanDenominator = denominator === "[]" ? "" : denominator;
-    const allLines = [...numeratorLines, cleanDenominator];
+    const denominatorLines = denominator.split(/\r?\n/).map((l) => (l.trim() === "[]" ? "" : l.trim()));
+
+    const allLines = [...numeratorLines, ...denominatorLines];
     const maxLen = Math.max(...allLines.map((l) => l.length));
+
     return (
       <span className="mr-2 inline-block align-top">
         <div className="w-full whitespace-nowrap text-right font-semibold text-gray-900 border-none">
           {numeratorLines.length > 0 ? numeratorLines.map((line, idx) => (
             <div key={idx} style={{ minHeight: "0", lineHeight: "1", marginBottom: "0", paddingBottom: "0" }}>
-              <span style={{ display: "inline-block", minWidth: `${maxLen}ch`, textAlign: "right" }}>{formatNumberForDisplay(line)}</span>
+              <span style={{ display: "inline-block", minWidth: `${maxLen}ch`, textAlign: "right" }}>{renderTextWithFractions(line)}</span>
             </div>
           )) : <div style={{ minHeight: "0", lineHeight: "1" }}></div>}
         </div>
         <div className="border-t border-gray-700" style={{ minWidth: `${maxLen + 1}ch`, marginTop: "-1px", marginBottom: "2px", height: "1px" }} />
         <div className="w-full whitespace-nowrap text-right font-semibold text-gray-900" style={{ minHeight: "0", lineHeight: "1", marginTop: "1px" }}>
-          <span style={{ display: "inline-block", minWidth: `${maxLen}ch`, textAlign: "right" }}>{formatNumberForDisplay(cleanDenominator)}</span>
+          {denominatorLines.length > 0 ? denominatorLines.map((line, idx) => (
+            <div key={idx} style={{ minHeight: "0", lineHeight: "1", marginBottom: "0", paddingBottom: "0" }}>
+              <span style={{ display: "inline-block", minWidth: `${maxLen}ch`, textAlign: "right" }}>{renderTextWithFractions(line)}</span>
+            </div>
+          )) : <div style={{ minHeight: "0", lineHeight: "1" }}></div>}
         </div>
       </span>
     );
   }
-  return <span>{question}</span>;
+  return <span>{renderTextWithFractions(question)}</span>;
 }
 
 // --- Main Components ---

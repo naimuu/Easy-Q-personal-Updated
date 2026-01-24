@@ -74,7 +74,7 @@ export default function TextWithFractions({
                 marginLeft: "2px",
                 marginRight: "2px",
                 borderCollapse: "collapse",
-                fontSize: "0.8em",
+                fontSize: "0.9em",
               }}
             >
               <tbody>
@@ -83,9 +83,9 @@ export default function TextWithFractions({
                   <td
                     style={{
                       textAlign: "center",
-                      fontWeight: "600",
-                      lineHeight: "1.2",
-                      padding: "0 2px 5px 2px",
+                      fontWeight: "700",
+                      lineHeight: "1",
+                      padding: "0 2px 3px 2px",
                       whiteSpace: "nowrap",
                     }}
                   >
@@ -96,9 +96,10 @@ export default function TextWithFractions({
                 <tr>
                   <td
                     style={{
-                      borderTop: "2px solid #000000",
+                      borderTop: "1px solid #000000",
                       padding: "0",
-                      height: "2px",
+                      height: "0px",
+                      fontSize: "1px",
                     }}
                   ></td>
                 </tr>
@@ -107,11 +108,10 @@ export default function TextWithFractions({
                   <td
                     style={{
                       textAlign: "center",
-                      fontWeight: "600",
-                      lineHeight: "0",
-                      padding: "0 2px 0 2px",
+                      fontWeight: "700",
+                      lineHeight: "1",
+                      padding: "3px 2px 0 2px",
                       whiteSpace: "nowrap",
-                      marginTop: "-3px",
                     }}
                   >
                     {denominator}

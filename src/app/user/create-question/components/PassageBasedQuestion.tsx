@@ -18,6 +18,7 @@ import {
 } from "./QuestionContext";
 import TableBasedView from "./TableBasedView";
 import WordBaseView from "./WordBaseView";
+import TextWithFractions from "./TextWithFractions";
 
 export default function PassagedBasedView({
   group,
@@ -250,7 +251,7 @@ export default function PassagedBasedView({
               onDoubleClick={() => setIsEditing(true)}
               className="ml-2 w-[90%] border-none bg-transparent focus:bg-white focus:outline-none"
             >
-              {group?.text}
+              <TextWithFractions text={group?.text} />
             </div>
           )}
         </span>

@@ -2,7 +2,8 @@
 
 import * as Accordion from "@radix-ui/react-accordion";
 import React, { useEffect, useState } from "react";
-import { ChevronDown, PlusIcon, Trash2, Pencil } from "lucide-react";
+import { ChevronDown, PlusIcon, Trash2, Pencil, MoreVertical } from "lucide-react";
+import { DropdownMenu } from "radix-ui";
 import Button from "@/components/shared/Button";
 import clsx from "clsx";
 import ModalLayout from "@/components/Layouts/ModalLayout";
@@ -20,6 +21,7 @@ import {
   useGetLessonsQuery,
   useUpdateChapterMutation,
   useUpdateLessonMutation,
+  useBulkCreateChapterLessonMutation,
 } from "@/redux/services/adminServices/chapterLesson";
 
 interface BookSelectionProps {
@@ -48,6 +50,8 @@ export default function BookSelection({
     lesson: Lesson;
     chapterId: string;
   } | null>(null);
+  const [isBulkAdding, setIsBulkAdding] = useState(false);
+  const [bulkCreate] = useBulkCreateChapterLessonMutation();
 
   const {
     data: chaptersData = [],
@@ -81,6 +85,39 @@ export default function BookSelection({
   //     refetchLessons();
   //   }
   // }, [bookId]);
+
+  const handleBulkSubmit = async (text: string) => {
+    const lines = text.split("\n").filter(l => l.trim());
+    const data: { name: string; lessons: string[] }[] = [];
+    let currentChapter: { name: string; lessons: string[] } | null = null;
+
+    lines.forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("-")) {
+        if (currentChapter) {
+          currentChapter.lessons.push(trimmed.substring(1).trim());
+        }
+      } else {
+        currentChapter = { name: trimmed, lessons: [] };
+        data.push(currentChapter);
+      }
+    });
+
+    if (data.length === 0) {
+      toast.error("Please provide valid data format");
+      return;
+    }
+
+    try {
+      await bulkCreate({ bookId, data }).unwrap();
+      toast.success("Bulk entry successful");
+      setIsBulkAdding(false);
+      refetchChapters();
+      refetchLessons();
+    } catch (err: any) {
+      toast.error(err?.data?.message || "Bulk entry failed");
+    }
+  };
 
   return (
     <>
@@ -124,12 +161,22 @@ export default function BookSelection({
         <aside className="h-full w-full  overflow-y-auto bg-white dark:bg-gray-900 xl:border-r xl:p-4">
           <div className="text-md mb-4 flex items-center justify-between font-semibold text-gray-800 dark:text-white">
             Chapters & Lessons
-            <Button
-              onClick={() => setIsOpen(true)}
-              className="h-8 w-8 rounded-full p-2"
-            >
-              <PlusIcon />
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={() => setIsBulkAdding(true)}
+                className="h-8 w-auto px-2 text-xs rounded-md"
+                title="Bulk Add Chapters & Lessons"
+              >
+                Bulk Add
+              </Button>
+              <Button
+                onClick={() => setIsOpen(true)}
+                className="h-8 w-8 rounded-full p-2"
+                title="Add Single Chapter"
+              >
+                <PlusIcon />
+              </Button>
+            </div>
           </div>
 
           {isChaptersLoading || isLessonsLoading ? (
@@ -148,48 +195,55 @@ export default function BookSelection({
                     <Accordion.Trigger className="flex-1 text-left">
                       Chapter {chapter.serial}
                     </Accordion.Trigger>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        className="h-6 w-6 p-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setActiveChapterId(chapter.id);
-                          setIsAddingLesson(true);
-                        }}
-                      >
-                        <PlusIcon className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        className="h-6 w-6 bg-yellow-500 p-1"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setEditingChapter(chapter);
-                          setIsOpen(true);
-                        }}
-                      >
-                        <Pencil className="h-4 w-4 text-white" />
-                      </Button>
-                      <Button
-                        className="h-6 w-6 bg-red-500 p-1"
-                        onClick={async (e) => {
-                          e.stopPropagation();
-                          const confirmed = window.confirm(
-                            "Are you sure you want to delete this chapter?",
-                          );
-                          if (!confirmed) {
-                            return;
-                          }
-                          try {
-                            await deleteChapter({ id: chapter.id });
-                            toast.success("Chapter deleted");
-                            refetchChapters();
-                          } catch {
-                            toast.error("Failed to delete");
-                          }
-                        }}
-                      >
-                        <Trash2 className="h-4 w-4 text-white" />
-                      </Button>
+                    <div className="flex items-center gap-1">
+                      <DropdownMenu.Root>
+                        <DropdownMenu.Trigger asChild>
+                          <button className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-gray-200 focus:outline-none transition-colors">
+                            <MoreVertical size={16} />
+                          </button>
+                        </DropdownMenu.Trigger>
+                        <DropdownMenu.Portal>
+                          <DropdownMenu.Content className="z-[100] min-w-[140px] bg-white rounded-md shadow-lg border border-gray-100 p-1 animate-in fade-in zoom-in duration-200">
+                            <DropdownMenu.Item
+                              onSelect={() => {
+                                setActiveChapterId(chapter.id);
+                                setIsAddingLesson(true);
+                              }}
+                              className="flex items-center gap-2 px-2 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors cursor-pointer rounded outline-none"
+                            >
+                              <PlusIcon className="h-4 w-4" /> Add Lesson
+                            </DropdownMenu.Item>
+                            <DropdownMenu.Item
+                              onSelect={() => {
+                                setEditingChapter(chapter);
+                                setIsOpen(true);
+                              }}
+                              className="flex items-center gap-2 px-2 py-2 text-sm text-gray-700 hover:bg-blue-50 transition-colors cursor-pointer rounded outline-none"
+                            >
+                              <Pencil className="h-4 w-4" /> Edit
+                            </DropdownMenu.Item>
+                            <DropdownMenu.Separator className="h-px bg-gray-100 my-1" />
+                            <DropdownMenu.Item
+                              onSelect={async () => {
+                                const confirmed = window.confirm("Are you sure you want to delete this chapter?");
+                                if (confirmed) {
+                                  try {
+                                    await deleteChapter({ id: chapter.id });
+                                    toast.success("Chapter deleted");
+                                    refetchChapters();
+                                  } catch {
+                                    toast.error("Failed to delete");
+                                  }
+                                }
+                              }}
+                              className="flex items-center gap-2 px-2 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors cursor-pointer rounded outline-none"
+                            >
+                              <Trash2 className="h-4 w-4" /> Delete
+                            </DropdownMenu.Item>
+                          </DropdownMenu.Content>
+                        </DropdownMenu.Portal>
+                      </DropdownMenu.Root>
+
                       <Accordion.Trigger>
                         <ChevronDown className="AccordionChevron h-4 w-4 transition-transform duration-200" />
                       </Accordion.Trigger>
@@ -214,38 +268,41 @@ export default function BookSelection({
                         >
                           Lesson {lesson.serial}
                         </div>
-                        <div className="flex gap-2">
-                          <Button
-                            className="h-5 w-5 bg-yellow-500 p-1"
-                            onClick={() =>
-                              setEditingLesson({
-                                lesson,
-                                chapterId: chapter.id,
-                              })
-                            }
-                          >
-                            <Pencil className="h-3 w-3 text-white" />
-                          </Button>
-                          <Button
-                            className="h-5 w-5 bg-red-500 p-1"
-                            onClick={async () => {
-                              const confirmed = window.confirm(
-                                "Are you sure you want to delete this lesson?",
-                              );
-                              if (!confirmed) {
-                                return;
-                              }
-                              try {
-                                await deleteLesson({ id: lesson.id });
-                                toast.success("Lesson deleted");
-                                refetchLessons();
-                              } catch {
-                                toast.error("Failed to delete lesson");
-                              }
-                            }}
-                          >
-                            <Trash2 className="h-3 w-3 text-white" />
-                          </Button>
+                        <div className="flex gap-1">
+                          <DropdownMenu.Root>
+                            <DropdownMenu.Trigger asChild>
+                              <button className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-gray-300 focus:outline-none transition-colors">
+                                <MoreVertical size={14} />
+                              </button>
+                            </DropdownMenu.Trigger>
+                            <DropdownMenu.Portal>
+                              <DropdownMenu.Content className="z-[100] min-w-[120px] bg-white rounded-md shadow-lg border border-gray-100 p-1 animate-in fade-in zoom-in duration-200">
+                                <DropdownMenu.Item
+                                  onSelect={() => setEditingLesson({ lesson, chapterId: chapter.id })}
+                                  className="flex items-center gap-2 px-2 py-1.5 text-xs text-gray-700 hover:bg-blue-50 transition-colors cursor-pointer rounded outline-none"
+                                >
+                                  <Pencil className="h-3 w-3" /> Edit
+                                </DropdownMenu.Item>
+                                <DropdownMenu.Item
+                                  onSelect={async () => {
+                                    const confirmed = window.confirm("Are you sure you want to delete this lesson?");
+                                    if (confirmed) {
+                                      try {
+                                        await deleteLesson({ id: lesson.id });
+                                        toast.success("Lesson deleted");
+                                        refetchLessons();
+                                      } catch {
+                                        toast.error("Failed to delete lesson");
+                                      }
+                                    }
+                                  }}
+                                  className="flex items-center gap-2 px-2 py-1.5 text-xs text-red-600 hover:bg-red-50 transition-colors cursor-pointer rounded outline-none"
+                                >
+                                  <Trash2 className="h-3 w-3" /> Delete
+                                </DropdownMenu.Item>
+                              </DropdownMenu.Content>
+                            </DropdownMenu.Portal>
+                          </DropdownMenu.Root>
                         </div>
                       </div>
                     ))}
@@ -302,6 +359,45 @@ export default function BookSelection({
             }}
             loading={isCreatingLesson || isUpdatingLesson}
           />
+        }
+      >
+        <div />
+      </ModalLayout>
+
+      <ModalLayout
+        onChange={() => setIsBulkAdding(false)}
+        isOpen={isBulkAdding}
+        modalComponent={
+          <div className="flex flex-col gap-4 w-[400px]">
+            <div className="text-lg font-bold">Bulk Add Chapters & Lessons</div>
+            <p className="text-xs text-gray-500">
+              Format:
+              <br />
+              Chapter Name
+              <br />
+              - Lesson Name
+              <br />
+              - Another Lesson
+            </p>
+            <textarea
+              id="bulk-input"
+              rows={15}
+              className="w-full rounded-md border p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none"
+              placeholder="Real Numbers
+- Introduction
+- Sets
+Geometry
+- Circles
+- Triangles"
+            />
+            <div className="flex justify-end gap-2">
+              <Button mode="outline" onClick={() => setIsBulkAdding(false)}>Cancel</Button>
+              <Button onClick={() => {
+                const text = (document.getElementById("bulk-input") as HTMLTextAreaElement).value;
+                handleBulkSubmit(text);
+              }}>Submit</Button>
+            </div>
+          </div>
         }
       >
         <div />

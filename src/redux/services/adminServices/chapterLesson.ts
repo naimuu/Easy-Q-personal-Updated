@@ -28,6 +28,9 @@ export const chapterLesson = baseApi.injectEndpoints({
     getLessons: builder.query<any[], void>({
       query: () => ({ url: "/admin/lesson" }),
     }),
+    getBookCategories: builder.query<any[], string>({
+      query: (bookId) => ({ url: `/admin/book-categories?bookId=${bookId}` }),
+    }),
     createLesson: builder.mutation({
       query: (data) => ({
         url: "/admin/lesson",
@@ -48,6 +51,13 @@ export const chapterLesson = baseApi.injectEndpoints({
         method: "DELETE",
       }),
     }),
+    bulkCreateChapterLesson: builder.mutation({
+      query: (data) => ({
+        url: "/admin/bulk-chapter-lesson",
+        method: "POST",
+        body: data,
+      }),
+    }),
   }),
 });
 export const {
@@ -59,4 +69,6 @@ export const {
   useGetLessonsQuery,
   useUpdateChapterMutation,
   useUpdateLessonMutation,
+  useBulkCreateChapterLessonMutation,
+  useGetBookCategoriesQuery,
 } = chapterLesson;

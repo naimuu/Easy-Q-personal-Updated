@@ -1,16 +1,24 @@
+import TextWithFractions from "./TextWithFractions";
+
 export default function StackFractionView({ doc }: { doc: any }) {
-  // Parse the question string: split by "//" to separate numerator and denominator
-  const parts = doc.question.split("//");
+  // Parse the question string: split by ";;" (fallback to "//") to separate numerator and denominator
+  let parts = doc.question.split(";;");
+  if (parts.length !== 2) {
+    parts = doc.question.split("//");
+  }
   const numerator = parts[0] || "";
   const denominator = parts[1]?.trim() || "";
 
-  // Split numerator by line breaks (preserve natural line breaks from input)
+  // Split numerator and denominator by line breaks
   const numeratorLines = numerator
+    .split(/\r?\n/)
+    .map((line: any) => line.trim());
+  const denominatorLines = denominator
     .split(/\r?\n/)
     .map((line: any) => line.trim());
 
   return (
-    <div className="mb-4 rounded-sm bg-purple-100 p-4 shadow-md dark:bg-purple-900">
+    <div className="mb-3 rounded-xl bg-white dark:bg-gray-800/40 p-3 border border-gray-100 dark:border-gray-700 shadow-sm antialiased group">
       {/* Stacked Fraction Display */}
       <div className="inline-block">
         {/* Numerator */}
@@ -18,7 +26,7 @@ export default function StackFractionView({ doc }: { doc: any }) {
           {numeratorLines.length > 0 ? (
             numeratorLines.map((line: any, index: any) => (
               <div key={index} className="min-h-[.5rem]">
-                {line === "[]" ? "" : line}
+                {line === "[]" ? "" : <TextWithFractions text={line} />}
               </div>
             ))
           ) : (
@@ -27,12 +35,20 @@ export default function StackFractionView({ doc }: { doc: any }) {
         </div>
         {/* Fraction Bar - Only as wide as needed */}
         <div
-          className="border-t border-gray-400"
-          style={{ minWidth: "30px" }}
+          className="border-t border-black dark:border-white"
+          style={{ minWidth: "30px", borderTopWidth: "1px" }}
         />
         {/* Denominator */}
         <div className="min-h-[1rem] whitespace-nowrap text-right font-semibold text-gray-900 dark:text-white">
-          {denominator === "[]" ? "" : denominator || ""}
+          {denominatorLines.length > 0 ? (
+            denominatorLines.map((line: any, index: any) => (
+              <div key={index} className="min-h-[.5rem]">
+                {line === "[]" ? "" : <TextWithFractions text={line} />}
+              </div>
+            ))
+          ) : (
+            <div className="min-h-[.5rem]"></div>
+          )}
         </div>
       </div>
     </div>

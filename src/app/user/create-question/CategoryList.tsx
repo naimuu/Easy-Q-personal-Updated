@@ -12,11 +12,17 @@ import { useState } from "react";
 import ObjectiveView from "./components/ObjectiveView";
 import PassageView from "./components/PassageView";
 import GroupedQuestionsRenderer from "./components/GroupedQuestionsRenderer";
+import TextWithFractions from "./components/TextWithFractions";
 
 // Inline utility to render stack-fraction vertically (same as print/export)
 export function renderStackFractionInline(question: string) {
   if (!question) return null;
-  const parts = question.split("//");
+  // Try split by new separator first, then fallback to old
+  let parts = question.split(";;");
+  if (parts.length !== 2) {
+    parts = question.split("//");
+  }
+
   if (parts.length === 2) {
     const numerator = parts[0].trim();
     const denominator = parts[1].trim();
@@ -28,23 +34,29 @@ export function renderStackFractionInline(question: string) {
 
     return (
       <span className="inline-flex items-center gap-2">
-        <span>{numerator}</span>
+        <span><TextWithFractions text={numerator} /></span>
         <span className="font-bold">--------</span>
-        <span>{denominator}</span>
+        <span><TextWithFractions text={denominator} /></span>
       </span>
     );
   }
-  return <span>{question}</span>;
+  return <span><TextWithFractions text={question} /></span>;
 }
 
 // Utility to render stack-fraction vertically (side by side layout)
 export function renderStackFractionVertical(question: string) {
   if (!question) return null;
-  const parts = question.split("//");
+  // Try split by new separator first, then fallback to old
+  let parts = question.split(";;");
+  if (parts.length !== 2) {
+    parts = question.split("//");
+  }
+
   if (parts.length === 2) {
     const numerator = parts[0] || "";
     const denominator = parts[1]?.trim() || "";
     const numeratorLines = numerator.split(/\r?\n/).map((l) => l.trim());
+    const denominatorLines = denominator.split(/\r?\n/).map((l) => l.trim());
 
     return (
       <span
@@ -56,7 +68,7 @@ export function renderStackFractionVertical(question: string) {
           {numeratorLines.length > 0 ? (
             numeratorLines.map((line, idx) => (
               <div key={idx} className="min-h-[1rem] text-center">
-                {line === "[]" ? "" : line}
+                {line === "[]" ? "" : <TextWithFractions text={line} />}
               </div>
             ))
           ) : (
@@ -70,12 +82,20 @@ export function renderStackFractionVertical(question: string) {
         />
         {/* Denominator */}
         <div className="min-h-[1rem] w-full text-center font-semibold text-gray-900 dark:text-white">
-          {denominator === "[]" ? "" : denominator}
+          {denominatorLines.length > 0 ? (
+            denominatorLines.map((line, idx) => (
+              <div key={idx} className="min-h-[1rem] text-center">
+                {line === "[]" ? "" : <TextWithFractions text={line} />}
+              </div>
+            ))
+          ) : (
+            <div className="min-h-[1rem]"></div>
+          )}
         </div>
       </span>
     );
   }
-  return <span>{question}</span>;
+  return <span><TextWithFractions text={question} /></span>;
 }
 
 const generateId = () => {

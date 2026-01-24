@@ -82,9 +82,10 @@ const ModalLayout: React.FC<Props> = ({
         {/* Close Button */}
         <button
           onClick={onChange}
-          className="absolute right-4 top-4 z-30 text-gray-400 transition hover:text-red-500"
+          className="absolute right-4 top-4 z-50 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-all hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-white"
+          aria-label="Close modal"
         >
-          <IoMdClose size={24} />
+          <IoMdClose size={20} />
         </button>
 
         {/* Optional Title and Description */}

@@ -504,10 +504,17 @@ export default function StackFractionView({
           }}
         >
           {group.questions.map((doc: any, qIndex: number) => {
-            const parts = (doc.question || "").split("//");
+            // Try split by new separator first, then fallback to old
+            let parts = (doc.question || "").split(";;");
+            if (parts.length !== 2) {
+              parts = (doc.question || "").split("//");
+            }
             const numerator = parts[0] || "";
             const denominator = parts[1]?.trim() || "";
             const numeratorLines = numerator
+              .split(/\r?\n/)
+              .map((line: any) => line.trim());
+            const denominatorLines = denominator
               .split(/\r?\n/)
               .map((line: any) => line.trim());
 
@@ -567,13 +574,36 @@ export default function StackFractionView({
                       />
                       {/* Denominator */}
                       <div className="min-h-[1rem] w-full text-right font-semibold text-black dark:text-white">
-                        {denominator === "[]"
-                          ? ""
-                          : renderText(
-                            denominator,
-                            doc.id,
-                            numeratorNumberCount,
-                          )}
+                        {denominatorLines.length > 0 ? (
+                          (() => {
+                            let lineStartIndex = numeratorNumberCount;
+                            return denominatorLines.map(
+                              (line: any, idx: number) => {
+                                const lineNumberCount = (
+                                  line.match(numberRegex) || []
+                                ).length;
+                                const result = (
+                                  <div
+                                    key={`${group.id}-den-line-${idx}`}
+                                    className="min-h-[0.75rem] leading-tight"
+                                  >
+                                    {line === "[]"
+                                      ? ""
+                                      : renderText(
+                                        line,
+                                        doc.id,
+                                        lineStartIndex,
+                                      )}
+                                  </div>
+                                );
+                                lineStartIndex += lineNumberCount;
+                                return result;
+                              },
+                            );
+                          })()
+                        ) : (
+                          <div className="min-h-[1rem]"></div>
+                        )}
                       </div>
                     </div>
                   </div>

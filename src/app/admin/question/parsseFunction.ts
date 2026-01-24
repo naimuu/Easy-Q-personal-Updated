@@ -57,8 +57,13 @@ const parseLine = (
 ) => {
   if (text.trim()) {
     if (type === "stack-fraction") {
-      // Split by commas first (each comma-separated block is a question)
-      const blocks = text.split(",").map((block) => block.trim());
+      // Split by "//" only when it appears on its own line to avoid breaking inline fractions (e.g. 34//43)
+      const blocks = text.split(/\r?\n\s*\/\/\s*(?:\r?\n|$)/).map((block) => {
+        let b = block.trim();
+        // Remove leading "[]," pattern if it exists at the start.
+        b = b.replace(/^\[\],\\s*/, "").trim();
+        return b;
+      }).filter(b => b.length > 0);
 
       const arr: QUESTION_TYPE[] = blocks.map((block) => {
         return {
@@ -180,7 +185,7 @@ export const stringifyQuestions = (
       return questions.map((q) => q.question).join("\n");
 
     case "stack-fraction":
-      return questions.map((q) => q.question).join(", ");
+      return questions.map((q) => q.question).join("\n//\n");
 
     case "table":
       return questions.map((q) => q.table || "").join("\n\n");

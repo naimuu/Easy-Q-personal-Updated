@@ -3,6 +3,7 @@ import { PlusCircle, CheckCircle } from "lucide-react";
 import React, { useMemo } from "react";
 import ObjectiveView from "./ObjectiveView";
 import PassageView from "./PassageView";
+import TextWithFractions from "./TextWithFractions";
 
 const GroupedQuestionsRenderer = ({
     category,
@@ -76,7 +77,7 @@ const GroupedQuestionsRenderer = ({
                     key={doc.id}
                     className={`flex w-fit items-center justify-between gap-1 rounded-sm border ${isSelected ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-gray-100 shadow-sm hover:bg-blue-100"} px-2 py-1 transition-colors`}
                 >
-                    <span className="flex-1">{doc.question}</span>
+                    <span className="flex-1"><TextWithFractions text={doc.question} /></span>
                     <div className="flex items-center gap-1">
                         {isSelected ? (
                             <CheckCircle
@@ -112,7 +113,7 @@ const GroupedQuestionsRenderer = ({
                     key={doc.id}
                     className={`flex justify-between gap-1 rounded-sm border ${isSelected ? "bg-blue-50 border-blue-200" : "bg-gray-50 border-gray-100 shadow-sm hover:bg-blue-100"} px-2 py-1 transition-colors`}
                 >
-                    {doc.question}{" "}
+                    <TextWithFractions text={doc.question} />{" "}
                     {isSelected ? (
                         <CheckCircle
                             onClick={() => {
