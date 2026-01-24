@@ -1,0 +1,86 @@
+﻿commit 05fa9c11bf81339fa425c9303d0c161b5e5453db
+Author: NAIMUDDIN <146748581+naimuu@users.noreply.github.com>
+Date:   Fri Jan 2 15:56:31 2026 +0600
+
+    feat: Add components for passage, stack fraction, table, word, and line-based question creation views.
+
+diff --git a/version 5/Version/easy-q-main/src/app/user/create-question/components/LineBasedView.tsx b/version 5/Version/easy-q-main/src/app/user/create-question/components/LineBasedView.tsx
+index 898f423..f19ff16 100644
+--- a/version 5/Version/easy-q-main/src/app/user/create-question/components/LineBasedView.tsx	
++++ b/version 5/Version/easy-q-main/src/app/user/create-question/components/LineBasedView.tsx	
+@@ -361,7 +361,10 @@ export default function LineBasedView({
+             put: true,
+           }}
+           disabled={!isArrangeMode}
+-          className="space-y-2"
++          className={`space-y-2 ${group.questions?.length > 4
++            ? "max-h-96 overflow-y-auto rounded-md border border-gray-200 p-2"
++            : ""
++            }`}
+           delay={2}
+           delayOnTouchOnly={true}
+           onStart={() => {
+diff --git a/version 5/Version/easy-q-main/src/app/user/create-question/components/PassageBasedQuestion.tsx b/version 5/Version/easy-q-main/src/app/user/create-question/components/PassageBasedQuestion.tsx
+index 47af55c..78dc752 100644
+--- a/version 5/Version/easy-q-main/src/app/user/create-question/components/PassageBasedQuestion.tsx	
++++ b/version 5/Version/easy-q-main/src/app/user/create-question/components/PassageBasedQuestion.tsx	
+@@ -305,7 +305,10 @@ export default function PassagedBasedView({
+           setList={(newItems: any[]) => updateItemOrder(group.id, newItems)}
+           animation={200}
+           group={{ name: "questions", pull: true, put: true }}
+-          className="space-y-2"
++          className={`space-y-2 ${group.questions?.length > 4
++            ? "max-h-96 overflow-y-auto rounded-md border border-gray-200 p-2"
++            : ""
++            }`}
+           delay={2}
+           disabled={!isArrangeMode || disabled}
+           delayOnTouchOnly={true}
+diff --git a/version 5/Version/easy-q-main/src/app/user/create-question/components/StackFractionView.tsx b/version 5/Version/easy-q-main/src/app/user/create-question/components/StackFractionView.tsx
+index d50b1ff..47b72ca 100644
+--- a/version 5/Version/easy-q-main/src/app/user/create-question/components/StackFractionView.tsx	
++++ b/version 5/Version/easy-q-main/src/app/user/create-question/components/StackFractionView.tsx	
+@@ -491,7 +491,10 @@ export default function StackFractionView({
+           animation={200}
+           group={{ name: "questions", pull: true, put: true }}
+           disabled={!isArrangeMode || !canDragDrop || disabled}
+-          className="space-y-2"
++          className={`space-y-2 ${group.questions?.length > 4
++            ? "max-h-96 overflow-y-auto rounded-md border border-gray-200 p-2"
++            : ""
++            }`}
+           delay={150}
+           delayOnTouchOnly={true}
+           onStart={() => {
+diff --git a/version 5/Version/easy-q-main/src/app/user/create-question/components/TableBasedView.tsx b/version 5/Version/easy-q-main/src/app/user/create-question/components/TableBasedView.tsx
+index 21db545..30ae669 100644
+--- a/version 5/Version/easy-q-main/src/app/user/create-question/components/TableBasedView.tsx	
++++ b/version 5/Version/easy-q-main/src/app/user/create-question/components/TableBasedView.tsx	
+@@ -348,7 +348,10 @@ export default function TableBasedView({
+           }
+           group="shared-items"
+           animation={200}
+-          className="space-y-2"
++          className={`space-y-2 ${group.questions?.length > 4
++            ? "max-h-96 overflow-y-auto rounded-md border border-gray-200 p-2"
++            : ""
++            }`}
+           disabled={!isArrangeMode || disabled}
+         >
+           {group.questions.map((q: any, qIndex: number) => {
+diff --git a/version 5/Version/easy-q-main/src/app/user/create-question/components/WordBaseView.tsx b/version 5/Version/easy-q-main/src/app/user/create-question/components/WordBaseView.tsx
+index 382a17a..05c8eb4 100644
+--- a/version 5/Version/easy-q-main/src/app/user/create-question/components/WordBaseView.tsx	
++++ b/version 5/Version/easy-q-main/src/app/user/create-question/components/WordBaseView.tsx	
+@@ -359,7 +359,10 @@ export default function WordBaseView({
+             put: true,
+           }}
+           disabled={!isArrangeMode || disabled}
+-          className="space-y-2"
++          className={`space-y-2 ${group.questions?.length > 4
++            ? "max-h-96 overflow-y-auto rounded-md border border-gray-200 p-2"
++            : ""
++            }`}
+           delay={2}
+           delayOnTouchOnly={true}
+         >
