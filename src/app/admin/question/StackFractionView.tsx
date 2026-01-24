@@ -22,7 +22,7 @@ export default function StackFractionView({ doc }: { doc: any }) {
       {/* Stacked Fraction Display */}
       <div className="inline-block">
         {/* Numerator */}
-        <div className="whitespace-nowrap text-right font-semibold text-gray-900 dark:text-white">
+        <div className="whitespace-nowrap text-right text-gray-900 dark:text-white">
           {numeratorLines.length > 0 ? (
             numeratorLines.map((line: any, index: any) => (
               <div key={index} className="min-h-[.5rem]">
@@ -39,7 +39,7 @@ export default function StackFractionView({ doc }: { doc: any }) {
           style={{ minWidth: "30px", borderTopWidth: "1px" }}
         />
         {/* Denominator */}
-        <div className="min-h-[1rem] whitespace-nowrap text-right font-semibold text-gray-900 dark:text-white">
+        <div className="min-h-[1rem] whitespace-nowrap text-right text-gray-900 dark:text-white">
           {denominatorLines.length > 0 ? (
             denominatorLines.map((line: any, index: any) => (
               <div key={index} className="min-h-[.5rem]">

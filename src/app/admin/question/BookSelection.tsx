@@ -51,7 +51,8 @@ export default function BookSelection({
     chapterId: string;
   } | null>(null);
   const [isBulkAdding, setIsBulkAdding] = useState(false);
-  const [bulkCreate] = useBulkCreateChapterLessonMutation();
+  const [bulkText, setBulkText] = useState("");
+  const [bulkCreate, { isLoading: isBulkSaving }] = useBulkCreateChapterLessonMutation();
 
   const {
     data: chaptersData = [],
@@ -75,30 +76,84 @@ export default function BookSelection({
     useUpdateLessonMutation();
   const [deleteLesson] = useDeleteLessonMutation();
 
-  const chapters: Chapter[] = chaptersData.map((chapter) => ({
+  const chapters: Chapter[] = React.useMemo(() => chaptersData.map((chapter) => ({
     ...chapter,
     lessons: lessonsData.filter((l) => l.chapterId === chapter.id),
-  }));
-  //   useEffect(() => {
-  //   if (bookId) {
-  //     refetchChapters();
-  //     refetchLessons();
-  //   }
-  // }, [bookId]);
+  })), [chaptersData, lessonsData]);
 
-  const handleBulkSubmit = async (text: string) => {
-    const lines = text.split("\n").filter(l => l.trim());
-    const data: { name: string; lessons: string[] }[] = [];
-    let currentChapter: { name: string; lessons: string[] } | null = null;
+  useEffect(() => {
+    if (isBulkAdding) {
+      if (chapters.length > 0) {
+        let text = "";
+        chapters.forEach((c) => {
+          text += `#${c.serial} ${c.name}\n`;
+          c.lessons.forEach((l) => {
+            text += `> #${l.serial} ${l.name}\n`;
+          });
+        });
+        setBulkText(text);
+      }
+    }
+  }, [isBulkAdding]); // Removed chapters from dependency to avoid overwrite on refetch, strictly sets on open.
 
-    lines.forEach(line => {
+  const handleBulkSubmit = async () => {
+    const lines = bulkText.split("\n").filter((l) => l.trim());
+    const data: { id?: string; name: string; lessons: { id?: string; name: string }[] }[] = [];
+
+    // Create copies of available items to match against (consuming them to handle duplicates)
+    // We will lookup items from the original `chapters` availability
+    // But we don't need to "consume" them like before because `serial` is a specific key.
+
+    let currentChapter: { id?: string; name: string; lessons: { id?: string; name: string }[] } | null = null;
+    let currentOriginalChapter: Chapter | undefined = undefined; // To support lesson lookups
+
+    lines.forEach((line) => {
       const trimmed = line.trim();
-      if (trimmed.startsWith("-")) {
+
+      if (trimmed.startsWith(">")) {
+        // Is Lesson
         if (currentChapter) {
-          currentChapter.lessons.push(trimmed.substring(1).trim());
+          // Format: > #1 Lesson Name OR > Lesson Name
+          const rawContent = trimmed.substring(1).trim();
+          const match = rawContent.match(/^#(\d+)\s+(.*)$/);
+
+          let name = rawContent;
+          let lessonId: string | undefined = undefined;
+
+          if (match && currentOriginalChapter) {
+            const serial = parseInt(match[1]);
+            name = match[2].trim();
+            const originalLesson = currentOriginalChapter.lessons.find(l => l.serial === serial);
+            if (originalLesson) {
+              lessonId = originalLesson.id;
+            }
+          } else if (match) {
+            // Has #serial but no original chapter matched? Treat as new, use name part
+            name = match[2].trim();
+          }
+
+          currentChapter.lessons.push({ name, id: lessonId });
         }
       } else {
-        currentChapter = { name: trimmed, lessons: [] };
+        // Is Chapter
+        // Format: #1 Name OR Name
+        const match = trimmed.match(/^#(\d+)\s+(.*)$/);
+
+        let name = trimmed;
+        let chapterId: string | undefined = undefined;
+        currentOriginalChapter = undefined;
+
+        if (match) {
+          const serial = parseInt(match[1]);
+          name = match[2].trim();
+          const originalChapter = chapters.find(c => c.serial === serial);
+          if (originalChapter) {
+            chapterId = originalChapter.id;
+            currentOriginalChapter = originalChapter;
+          }
+        }
+
+        currentChapter = { name, id: chapterId, lessons: [] };
         data.push(currentChapter);
       }
     });
@@ -110,10 +165,10 @@ export default function BookSelection({
 
     try {
       await bulkCreate({ bookId, data }).unwrap();
-      toast.success("Bulk entry successful");
-      setIsBulkAdding(false);
+      toast.success("Bulk update successful");
       refetchChapters();
       refetchLessons();
+      setIsBulkAdding(false);
     } catch (err: any) {
       toast.error(err?.data?.message || "Bulk entry failed");
     }
@@ -129,7 +184,7 @@ export default function BookSelection({
               setIsOpen(false);
               setEditingChapter(null);
             }}
-            defaultValue={editingChapter?.name || ""}
+            initialData={editingChapter ? { name: editingChapter.name, serial: editingChapter.serial } : undefined}
             onSubmit={async (name, serial) => {
               try {
                 if (editingChapter) {
@@ -159,7 +214,7 @@ export default function BookSelection({
         isOpen={isOpen}
       >
         <aside className="h-full w-full  overflow-y-auto bg-white dark:bg-gray-900 xl:border-r xl:p-4">
-          <div className="text-md mb-4 flex items-center justify-between font-semibold text-gray-800 dark:text-white">
+          <div className="text-md mb-4 flex items-center justify-between font-medium text-gray-800 dark:text-white">
             Chapters & Lessons
             <div className="flex items-center gap-2">
               <Button
@@ -191,11 +246,11 @@ export default function BookSelection({
                   value={chapter.id}
                   className="rounded-md border shadow-sm"
                 >
-                  <Accordion.Header className="flex w-full items-center justify-between p-3 text-left font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-800">
-                    <Accordion.Trigger className="flex-1 text-left">
-                      Chapter {chapter.serial}
+                  <Accordion.Header className="flex w-full items-center justify-between text-left font-medium text-gray-900 hover:bg-gray-100 dark:text-white dark:hover:bg-gray-800">
+                    <Accordion.Trigger className="flex-1 text-left font-medium p-3">
+                      {chapter.name}
                     </Accordion.Trigger>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 p-3">
                       <DropdownMenu.Root>
                         <DropdownMenu.Trigger asChild>
                           <button className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-gray-200 focus:outline-none transition-colors">
@@ -254,21 +309,22 @@ export default function BookSelection({
                       <div
                         key={lesson.id}
                         className={clsx(
-                          "flex items-center justify-between rounded p-2 hover:bg-gray-100 dark:hover:bg-gray-800",
+                          "flex items-center justify-between rounded hover:bg-gray-100 dark:hover:bg-gray-800 cursor-pointer", // cursor-pointer on container
                           selectedLessonId === lesson.id &&
                           "bg-gray-200 font-semibold dark:bg-gray-700",
                         )}
+                        onClick={() => {
+                          setSelectedLessonId(lesson.id);
+                          setLessonName(lesson.name);
+                        }}
                       >
                         <div
-                          className="flex-1 cursor-pointer"
-                          onClick={() => {
-                            setSelectedLessonId(lesson.id);
-                            setLessonName(lesson.name);
-                          }}
+                          className="flex-1 font-normal text-sm p-2"
                         >
-                          Lesson {lesson.serial}
+                          <span className="text-gray-400 mr-2 text-sm font-normal">{lesson.serial}.</span>
+                          {lesson.name}
                         </div>
-                        <div className="flex gap-1">
+                        <div className="flex gap-1 p-2" onClick={(e) => e.stopPropagation()}>
                           <DropdownMenu.Root>
                             <DropdownMenu.Trigger asChild>
                               <button className="h-6 w-6 flex items-center justify-center rounded-full hover:bg-gray-300 focus:outline-none transition-colors">
@@ -322,7 +378,7 @@ export default function BookSelection({
         isOpen={isAddingLesson || !!editingLesson}
         modalComponent={
           <AddLesson
-            defaultValue={editingLesson?.lesson.name || ""}
+            initialData={editingLesson ? { name: editingLesson.lesson.name, serial: editingLesson.lesson.serial } : undefined}
             close={() => {
               setIsAddingLesson(false);
               setEditingLesson(null);
@@ -369,33 +425,29 @@ export default function BookSelection({
         isOpen={isBulkAdding}
         modalComponent={
           <div className="flex flex-col gap-4 w-[400px]">
-            <div className="text-lg font-bold">Bulk Add Chapters & Lessons</div>
+            <div className="text-lg font-medium">Bulk Edit Chapters & Lessons</div>
             <p className="text-xs text-gray-500">
               Format:
               <br />
               Chapter Name
               <br />
-              - Lesson Name
+              {">"} Lesson Name
               <br />
-              - Another Lesson
+              <span className="text-amber-600 font-semibold">* Use #number (e.g. #1) to match existing items for updates.</span>
             </p>
             <textarea
               id="bulk-input"
-              rows={15}
-              className="w-full rounded-md border p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none"
-              placeholder="Real Numbers
-- Introduction
-- Sets
-Geometry
-- Circles
-- Triangles"
+              rows={20}
+              className="w-full rounded-md border p-3 text-sm focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all outline-none font-mono"
+              placeholder="Loading existing data..."
+              value={bulkText}
+              onChange={(e) => setBulkText(e.target.value)}
             />
             <div className="flex justify-end gap-2">
               <Button mode="outline" onClick={() => setIsBulkAdding(false)}>Cancel</Button>
-              <Button onClick={() => {
-                const text = (document.getElementById("bulk-input") as HTMLTextAreaElement).value;
-                handleBulkSubmit(text);
-              }}>Submit</Button>
+              <Button loading={isBulkSaving} onClick={() => {
+                handleBulkSubmit();
+              }}>Save Changes</Button>
             </div>
           </div>
         }
@@ -414,22 +466,31 @@ const chapterSchema = object({
 const AddChapter = ({
   close,
   onSubmit,
-  defaultValue = "",
+  initialData,
   loading,
 }: {
   close: () => void;
   onSubmit: (name: string, serial: number) => void;
-  defaultValue?: string;
+  initialData?: { name: string; serial: number };
   loading?: boolean;
 }) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(chapterSchema),
-    defaultValues: { name: defaultValue, serial: 1 },
+    defaultValues: { name: "", serial: 1 },
   });
+
+  useEffect(() => {
+    if (initialData) {
+      reset({ name: initialData.name, serial: initialData.serial });
+    } else {
+      reset({ name: "", serial: 1 });
+    }
+  }, [initialData, reset]);
 
   return (
     <form
@@ -439,7 +500,7 @@ const AddChapter = ({
       className="flex flex-col gap-4"
     >
       <div className="text-lg font-medium">
-        {defaultValue ? "Edit Chapter" : "Add Chapter"}
+        {initialData ? "Edit Chapter" : "Add Chapter"}
       </div>
       <Input
         label="Chapter Name"
@@ -467,22 +528,31 @@ const lessonSchema = object({
 const AddLesson = ({
   close,
   onSubmit,
-  defaultValue = "",
+  initialData,
   loading,
 }: {
   close: () => void;
   onSubmit: (name: string, serial: number) => void;
-  defaultValue?: string;
+  initialData?: { name: string; serial: number };
   loading?: boolean;
 }) => {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(lessonSchema),
-    defaultValues: { name: defaultValue, serial: 1 },
+    defaultValues: { name: "", serial: 1 },
   });
+
+  useEffect(() => {
+    if (initialData) {
+      reset({ name: initialData.name, serial: initialData.serial });
+    } else {
+      reset({ name: "", serial: 1 });
+    }
+  }, [initialData, reset]);
 
   return (
     <form
@@ -493,7 +563,7 @@ const AddLesson = ({
       className="flex flex-col gap-4"
     >
       <div className="text-lg font-medium">
-        {defaultValue ? "Edit Lesson" : "Add Lesson"}
+        {initialData ? "Edit Lesson" : "Add Lesson"}
       </div>
       <Input
         label="Lesson Name"
@@ -512,3 +582,4 @@ const AddLesson = ({
     </form>
   );
 };
+

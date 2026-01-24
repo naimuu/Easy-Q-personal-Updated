@@ -10,7 +10,11 @@ import TextWithFractions from "./TextWithFractions";
 const StackedFractionDisplay = ({ text }: { text: string }) => {
     if (!text) return null;
 
-    const parts = text.split("//");
+    let parts = text.split(";;");
+    if (parts.length < 2) {
+        parts = text.split("//");
+    }
+
     // If no split, it's just regular text (though strictly it should have // for this type)
     if (parts.length < 2) {
         return <span>{text}</span>;

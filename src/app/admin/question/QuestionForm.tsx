@@ -13,7 +13,8 @@ import {
   Plus as PlusIcon,
   Table as TableIcon,
   HelpCircle,
-  LucideIcon
+  LucideIcon,
+  X
 } from "lucide-react";
 import { useEffect, useState, useMemo } from "react";
 import { toast } from "react-toastify";
@@ -79,7 +80,7 @@ const PreviewList = ({ items, type }: { items: any[]; type: string }) => (
     {items.map((item, idx) => (
       <div key={idx} className="relative group/preview">
         <div className="absolute -left-8 top-1/2 -translate-y-1/2 w-4 h-px bg-gray-200 dark:bg-gray-800" />
-        <div className="absolute -left-12 top-1/2 -translate-y-1/2 text-[9px] font-black text-gray-300 group-hover/preview:text-blue-500 transition-colors uppercase">
+        <div className="absolute -left-12 top-1/2 -translate-y-1/2 text-xs font-black text-gray-500 group-hover/preview:text-blue-600 transition-colors uppercase">
           {items.length - idx}
         </div>
         {type === "objective" ? (
@@ -87,7 +88,7 @@ const PreviewList = ({ items, type }: { items: any[]; type: string }) => (
         ) : type === "stack-fraction" ? (
           <StackFractionView doc={item} />
         ) : (
-          <div className="bg-white dark:bg-gray-900 p-3 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm antialiased text-black text-[13px] font-bold">
+          <div className="bg-white dark:bg-gray-900 p-3 rounded-xl border border-gray-100 dark:border-gray-800 shadow-sm antialiased text-black text-sm font-medium">
             <TextWithFractions text={item.question} />
           </div>
         )}
@@ -233,61 +234,64 @@ const QuestionForm = ({
       {/* Sleek Header Section */}
       <div className="flex items-center justify-between px-8 py-4 border-b bg-white dark:bg-gray-900 shadow-sm z-20">
         <div className="flex flex-col">
-          <h2 className="text-lg font-black text-black dark:text-white flex items-center gap-2 tracking-tighter">
+          <h2 className="text-lg font-medium text-black dark:text-white flex items-center gap-2 tracking-tighter">
             {data ? (
               <span className="flex items-center gap-2"><FileText className="h-4 w-4 text-blue-600" /> Update Question</span>
             ) : (
               <span className="flex items-center gap-2"><PlusIcon className="h-4 w-4 text-emerald-600" /> Draft New Question</span>
             )}
           </h2>
-          <p className="text-[10px] text-gray-800 font-black uppercase tracking-widest opacity-80">Content Studio</p>
+          <p className="text-xs text-gray-900 font-medium uppercase tracking-widest opacity-80">Content Studio</p>
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
-            <Button
-              type="button"
-              mode="outline"
-              onClick={() => setIsRTL(false)}
-              className={cn(
-                "px-3 h-8 text-[10px] font-bold rounded-md border-none transition-all",
-                !isRTL ? "bg-white text-blue-600 shadow-sm" : "text-gray-400 hover:text-gray-600"
-              )}
-            >
-              LTR
-            </Button>
-            <Button
-              type="button"
-              mode="outline"
-              onClick={() => setIsRTL(true)}
-              className={cn(
-                "px-3 h-8 text-[10px] font-bold rounded-md border-none transition-all",
-                isRTL ? "bg-white text-blue-600 shadow-sm" : "text-gray-400 hover:text-gray-600"
-              )}
-            >
-              RTL
-            </Button>
+          <div className="flex items-center gap-3">
+            <div className="flex items-center bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
+              <Button
+                type="button"
+                mode="outline"
+                onClick={() => setIsRTL(false)}
+                className={cn(
+                  "px-3 h-8 text-xs font-medium rounded-md border-none transition-all",
+                  !isRTL ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                )}
+              >
+                LTR
+              </Button>
+              <Button
+                type="button"
+                mode="outline"
+                onClick={() => setIsRTL(true)}
+                className={cn(
+                  "px-3 h-8 text-xs font-medium rounded-md border-none transition-all",
+                  isRTL ? "bg-white text-blue-600 shadow-sm" : "text-gray-600 hover:text-gray-900"
+                )}
+              >
+                RTL
+              </Button>
+            </div>
+
+            {type && type !== "passage-based" && (
+              <Button
+                loading={data ? loading : isLoading}
+                onClick={data ? handleSingleUpdateSubmit : handleSingleSubmit}
+                className="h-10 px-6 text-xs font-medium uppercase tracking-widest shadow-lg shadow-blue-500/25 rounded-lg"
+              >
+                {data ? "Commit Changes" : "Create Now"}
+              </Button>
+            )}
           </div>
 
-          <div className="h-6 w-px bg-gray-200 dark:bg-gray-700 mx-1" />
+          <div className="h-8 w-px bg-gray-200 dark:bg-gray-700 mx-2" />
 
           <Button
             mode="outline"
             onClick={close}
-            className="h-10 px-5 text-xs font-bold border-gray-200 hover:bg-gray-50 transition-colors"
+            className="h-10 w-10 p-0 rounded-full border-gray-200 hover:bg-gray-100 hover:text-red-500 transition-colors flex items-center justify-center"
+            title="Close Editor"
           >
-            Cancel
+            <X className="h-5 w-5" />
           </Button>
-
-          {type && type !== "passage-based" && (
-            <Button
-              loading={data ? loading : isLoading}
-              onClick={data ? handleSingleUpdateSubmit : handleSingleSubmit}
-              className="h-10 px-8 text-xs font-black uppercase tracking-widest shadow-lg shadow-blue-500/25"
-            >
-              {data ? "Commit Changes" : "Create Now"}
-            </Button>
-          )}
         </div>
       </div>
 
@@ -302,7 +306,7 @@ const QuestionForm = ({
                 placeholder="Find category..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-4 py-2 text-[12px] border-gray-300 dark:border-gray-800 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:bg-gray-950 font-bold text-black"
+                className="w-full pl-9 pr-4 py-2 text-sm border border-blue-200 dark:border-blue-900/30 rounded-lg focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all dark:bg-gray-950 font-medium text-black"
               />
             </div>
           </div>
@@ -314,29 +318,29 @@ const QuestionForm = ({
                 <div className="flex items-center justify-between px-1">
                   <div className="flex items-center gap-2">
                     <Bookmark className="h-3 w-3 text-blue-600 fill-blue-600" />
-                    <span className="text-[10px] font-black text-blue-800 uppercase tracking-widest">Book History</span>
+                    <span className="text-xs font-medium text-blue-800 uppercase tracking-wide">Book History</span>
                   </div>
-                  <span className="text-[8px] font-bold bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full">{filteredShortcuts.length}</span>
+                  <span className="text-xs font-medium bg-blue-100 text-blue-600 px-1.5 py-0.5 rounded-full">{filteredShortcuts.length}</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2">
                   {filteredShortcuts.map((cat) => {
-                    const Meta = typeMeta[cat.type] || { icon: HelpCircle, color: "text-gray-400", bgColor: "bg-gray-50" };
+                    const Meta = typeMeta[cat.type] || { icon: HelpCircle, color: "text-gray-600", bgColor: "bg-gray-100" };
                     return (
                       <button
                         key={`shortcut-${cat.id}`}
                         onClick={() => setCategoryId(cat.id)}
                         className={cn(
-                          "w-full flex items-center gap-2 px-3 py-2 text-[12px] font-bold rounded-lg transition-all border text-left group",
+                          "w-full flex items-center gap-2 px-3 py-2 text-sm font-medium rounded-lg transition-all border text-left group",
                           categoryId === cat.id
-                            ? "bg-blue-600 border-blue-600 text-white shadow-sm"
-                            : "bg-white border-gray-200 text-black hover:border-blue-300 hover:bg-blue-50/30 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-300"
+                            ? "bg-blue-50 border-blue-200 text-blue-700 shadow-sm dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300"
+                            : "bg-white border-gray-200 text-gray-900 hover:border-blue-300 hover:bg-blue-50/30 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-200"
                         )}
                       >
-                        <div className={cn("p-1.5 rounded-md shrink-0", categoryId === cat.id ? "bg-white/20" : Meta.bgColor)}>
-                          <Meta.icon className={cn("h-3 w-3", categoryId === cat.id ? "text-white" : Meta.color)} />
+                        <div className={cn("p-1.5 rounded-md shrink-0", categoryId === cat.id ? "bg-blue-100 dark:bg-blue-800" : Meta.bgColor)}>
+                          <Meta.icon className={cn("h-3 w-3", categoryId === cat.id ? "text-blue-600 dark:text-blue-200" : Meta.color)} />
                         </div>
                         <span className="truncate flex-1">{cat.name}</span>
-                        {categoryId === cat.id && <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />}
+                        {categoryId === cat.id && <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-blue-600 dark:text-blue-400" />}
                       </button>
                     );
                   })}
@@ -348,29 +352,29 @@ const QuestionForm = ({
             <div className="space-y-3">
               <div className="flex items-center gap-2 px-1">
                 <Layers className="h-3 w-3 text-gray-700" />
-                <span className="text-[10px] font-black text-gray-800 uppercase tracking-widest">Master Catalog</span>
+                <span className="text-xs font-medium text-gray-800 uppercase tracking-wide">Master Catalog</span>
               </div>
               <div className="space-y-1">
                 {filteredAll.map((cat) => {
                   if (bookCategories.some(bc => bc.id === cat.id) && !searchTerm) return null;
-                  const Meta = typeMeta[cat.type] || { icon: HelpCircle, color: "text-gray-400", bgColor: "bg-gray-50" };
+                  const Meta = typeMeta[cat.type] || { icon: HelpCircle, color: "text-gray-600", bgColor: "bg-gray-100" };
 
                   return (
                     <button
                       key={cat.id}
                       onClick={() => setCategoryId(cat.id)}
                       className={cn(
-                        "w-full flex items-center gap-2 px-3 py-1.5 text-[11px] font-bold rounded-lg transition-all text-left",
+                        "w-full flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-lg transition-all text-left",
                         categoryId === cat.id
-                          ? "bg-blue-600 text-white shadow-sm dark:bg-blue-600"
-                          : "text-black opacity-70 hover:opacity-100 hover:bg-gray-100 hover:text-blue-700 dark:text-gray-400 dark:hover:bg-gray-800"
+                          ? "bg-blue-50 border border-blue-200 text-blue-700 shadow-sm dark:bg-blue-900/20 dark:border-blue-800 dark:text-blue-300"
+                          : "text-gray-900 opacity-90 hover:opacity-100 hover:bg-gray-100 hover:text-blue-700 dark:text-gray-300 dark:hover:bg-gray-800"
                       )}
                     >
-                      <div className={cn("h-5 w-5 rounded flex items-center justify-center shrink-0", categoryId === cat.id ? "bg-white/10" : "bg-gray-200 dark:bg-gray-800")}>
-                        <Meta.icon className={cn("h-2.5 w-2.5", categoryId === cat.id ? "text-white" : "text-gray-600")} />
+                      <div className={cn("h-5 w-5 rounded flex items-center justify-center shrink-0", categoryId === cat.id ? "bg-blue-100 dark:bg-blue-800" : "bg-gray-200 dark:bg-gray-800")}>
+                        <Meta.icon className={cn("h-2.5 w-2.5", categoryId === cat.id ? "text-blue-600 dark:text-blue-200" : "text-gray-600")} />
                       </div>
                       <span className="truncate flex-1">{cat.name}</span>
-                      {categoryId === cat.id && <CheckCircle2 className="h-3 w-3" />}
+                      {categoryId === cat.id && <CheckCircle2 className="h-3 w-3 text-blue-600 dark:text-blue-400" />}
                     </button>
                   );
                 })}
@@ -385,7 +389,7 @@ const QuestionForm = ({
             ) : filteredAll.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-10 text-gray-300 space-y-2">
                 <Search className="h-8 w-8 stroke-1" />
-                <p className="text-[10px] font-bold uppercase tracking-tighter italic">Zero matches</p>
+                <p className="text-[10px] font-medium uppercase tracking-tighter italic">Zero matches</p>
               </div>
             ) : null}
           </div>
@@ -402,8 +406,8 @@ const QuestionForm = ({
                 </div>
               </div>
               <div className="space-y-2 relative">
-                <p className="text-xl font-black text-black dark:text-white tracking-tighter">Initialize Editor</p>
-                <p className="text-[11px] font-bold leading-relaxed text-gray-700 dark:text-gray-400 max-w-[280px]">Pick a category to begin drafting your content with pattern-specific guidance.</p>
+                <p className="text-xl font-medium text-black dark:text-white tracking-tighter">Initialize Editor</p>
+                <p className="text-sm font-normal leading-relaxed text-gray-900 dark:text-gray-300 max-w-[280px]">Pick a category to begin drafting your content with pattern-specific guidance.</p>
               </div>
             </div>
           ) : (
@@ -417,13 +421,13 @@ const QuestionForm = ({
                   })()}
                 </div>
                 <div className="flex-1">
-                  <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest mb-0.5 opacity-70">Active Pattern</p>
-                  <h3 className="text-base font-black text-black dark:text-white tracking-tighter leading-none uppercase">
+                  <p className="text-xs font-medium text-gray-600 uppercase tracking-widest mb-0.5 opacity-70">Active Pattern</p>
+                  <h3 className="text-base font-medium text-black dark:text-white tracking-tight leading-none uppercase">
                     {selectedCategory?.name}
                   </h3>
                 </div>
                 <div className="hidden sm:flex flex-col items-end">
-                  <span className="text-[8px] font-black bg-gray-100 dark:bg-gray-800 text-black px-2 py-0.5 rounded-md uppercase tracking-widest border border-gray-300 dark:border-gray-700">{type}</span>
+                  <span className="text-xs font-medium bg-gray-100 dark:bg-gray-800 text-black px-2 py-0.5 rounded-md uppercase tracking-widest border border-gray-300 dark:border-gray-700">{type}</span>
                 </div>
               </div>
 
@@ -444,7 +448,7 @@ const QuestionForm = ({
                   {type === "table" ? (
                     <div className="space-y-4">
                       <div className="flex items-center justify-between px-2">
-                        <label className="text-[10px] font-black text-gray-800 uppercase tracking-widest">Structured Content Editor</label>
+                        <label className="text-xs font-medium text-gray-800 uppercase tracking-wide">Structured Content Editor</label>
                         <TableIcon className="h-4 w-4 text-gray-700" />
                       </div>
                       <div className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-800 rounded-2xl overflow-hidden shadow-sm min-h-[550px]">
@@ -455,17 +459,17 @@ const QuestionForm = ({
                     <div className="grid grid-cols-1 xl:grid-cols-[1.3fr_0.7fr] gap-8 items-start">
                       <div className="space-y-4 sticky top-0">
                         <div className="flex items-center justify-between px-2">
-                          <label className="text-[10px] font-black text-gray-800 uppercase tracking-widest">Question Repository</label>
+                          <label className="text-xs font-medium text-gray-800 uppercase tracking-wide">Question Repository</label>
                           <div className="flex items-center gap-3">
                             {questionText && (
                               <button
                                 onClick={() => setQuestionText("")}
-                                className="text-[9px] font-black text-red-500 uppercase hover:underline"
+                                className="text-xs font-medium text-red-500 uppercase hover:underline"
                               >
                                 Clear Draft
                               </button>
                             )}
-                            {error && <span className="text-[10px] text-red-600 font-black uppercase bg-red-50 px-2 py-0.5 rounded">{error}</span>}
+                            {error && <span className="text-xs text-red-600 font-bold uppercase bg-red-50 px-2 py-0.5 rounded">{error}</span>}
                           </div>
                         </div>
                         <TextArea
@@ -480,17 +484,17 @@ const QuestionForm = ({
                           onChange={(e) => setQuestionText(e.target.value)}
                           error={""}
                           className={cn(
-                            "text-base leading-relaxed font-bold p-6 bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-800 rounded-2xl shadow-sm focus:ring-4 focus:ring-blue-500/5 transition-all outline-none min-h-[300px] text-black antialiased",
+                            "text-base leading-relaxed font-normal p-6 bg-white dark:bg-gray-900 border-gray-300 dark:border-gray-800 rounded-2xl shadow-sm focus:ring-4 focus:ring-blue-500/5 transition-all outline-none min-h-[300px] text-black antialiased",
                             isRTL ? "text-right" : "text-left"
                           )}
                         />
-                        <p className="px-6 text-[10px] text-gray-500 font-bold italic">Tip: Use `[1/2]` for vertical fractions.</p>
+                        <p className="px-6 text-xs text-gray-700 font-normal italic">Tip: Use `[1/2]` for vertical fractions.</p>
                       </div>
 
                       <div className="space-y-6">
                         <div className="flex items-center gap-3 px-2">
                           <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-                          <label className="text-[10px] font-black text-gray-800 uppercase tracking-widest">Live Evolution Preview</label>
+                          <label className="text-xs font-black text-gray-800 uppercase tracking-widest">Live Evolution Preview</label>
                         </div>
 
                         {livePreviewData.length > 0 ? (
@@ -499,8 +503,8 @@ const QuestionForm = ({
                           </div>
                         ) : (
                           <div className="flex flex-col items-center justify-center py-20 border-2 border-dashed border-gray-100 dark:border-gray-800 rounded-3xl opacity-40">
-                            <FileText className="h-10 w-10 text-gray-300 mb-3" />
-                            <p className="text-[10px] font-black text-gray-400 uppercase">Awaiting Draft Entry</p>
+                            <FileText className="h-10 w-10 text-gray-400 mb-3" />
+                            <p className="text-xs font-black text-gray-500 uppercase">Awaiting Draft Entry</p>
                           </div>
                         )}
                       </div>
@@ -658,7 +662,7 @@ const TypeFormatter = ({
     >
       <div className="bg-white dark:bg-gray-900 p-6 rounded-2xl border border-gray-200 dark:border-gray-800 shadow-sm space-y-3 antialiased">
         <div className="flex items-center justify-between px-1">
-          <label className="text-[10px] font-black text-gray-800 uppercase tracking-widest">Master Context</label>
+          <label className="text-xs font-bold text-gray-800 uppercase tracking-wide">Master Context</label>
           <Layers className="h-4 w-4 text-amber-600" />
         </div>
         <TextArea
@@ -676,13 +680,13 @@ const TypeFormatter = ({
 
       <div className="space-y-8">
         <div className="flex items-center gap-6">
-          <span className="text-[10px] font-black text-gray-800 uppercase tracking-[0.3em] whitespace-nowrap">Sequential Sub-Questions</span>
+          <span className="text-xs font-bold text-gray-800 uppercase tracking-wide whitespace-nowrap">Sequential Sub-Questions</span>
           <div className="h-px w-full bg-gradient-to-r from-gray-300 to-transparent dark:from-gray-700" />
         </div>
 
         {questions.map((item, index) => (
           <div key={index} className="group rounded-2xl bg-white dark:bg-gray-900/50 border border-gray-200 dark:border-gray-800 p-6 relative shadow-sm hover:border-blue-300 transition-all duration-300 antialiased">
-            <div className="absolute top-4 left-4 text-[9px] font-black text-gray-500 group-hover:text-blue-600">#{index + 1}</div>
+            <div className="absolute top-4 left-4 text-xs font-bold text-gray-500 group-hover:text-blue-600">#{index + 1}</div>
 
             <button
               type="button"
@@ -695,7 +699,7 @@ const TypeFormatter = ({
             <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
                 <div className="space-y-2">
-                  <label className="text-[9px] font-black text-gray-700 uppercase tracking-widest px-2">Sub-Category</label>
+                  <label className="text-xs font-bold text-gray-700 uppercase tracking-wide px-2">Sub-Category</label>
                   <select
                     value={item.id}
                     onChange={(e) => {
@@ -704,7 +708,7 @@ const TypeFormatter = ({
                       const type = category?.find((d) => d.value === val)?.type;
                       if (type) handleChangeQuestion(index, "type", type);
                     }}
-                    className="w-full h-10 px-4 bg-gray-100 dark:bg-gray-800 border-none rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 transition-all font-black text-[11px] uppercase text-black"
+                    className="w-full h-10 px-4 bg-gray-100 dark:bg-gray-800 border-none rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 transition-all font-bold text-xs uppercase text-black"
                   >
                     <option value="">Pattern Profile</option>
                     {category.map((c) => (
@@ -715,7 +719,7 @@ const TypeFormatter = ({
               </div>
 
               <div className="space-y-2">
-                <label className="text-[9px] font-black text-gray-700 uppercase tracking-widest px-2">Work Area</label>
+                <label className="text-xs font-bold text-gray-700 uppercase tracking-wide px-2">Work Area</label>
                 {item.type === "table" ? (
                   <div className="border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden bg-white shadow-inner min-h-[350px]">
                     <Editor
@@ -752,7 +756,7 @@ const TypeFormatter = ({
                   })).reverse();
                   return (
                     <div className="mt-4 pl-12 border-l-2 border-dashed border-gray-100 dark:border-gray-800 py-1">
-                      <div className="flex items-center gap-2 mb-3 text-[9px] font-black text-emerald-600 uppercase">
+                      <div className="flex items-center gap-2 mb-3 text-xs font-bold text-emerald-600 uppercase">
                         <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
                         Draft Evolution
                       </div>
@@ -770,7 +774,7 @@ const TypeFormatter = ({
             type="button"
             mode="outline"
             onClick={handleAddQuestion}
-            className="h-16 px-12 rounded-[2rem] border-2 border-dashed border-gray-300 text-gray-600 hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50/30 transition-all font-black uppercase text-xs tracking-[0.2em]"
+            className="h-16 px-12 rounded-[2rem] border-2 border-dashed border-gray-300 text-gray-600 hover:border-blue-500 hover:text-blue-500 hover:bg-blue-50/30 transition-all font-bold uppercase text-xs tracking-wide"
           >
             + Add Sub-Question Entry
           </Button>
@@ -779,12 +783,12 @@ const TypeFormatter = ({
 
       <div className="flex gap-6 pt-10 border-t items-center justify-between sticky bottom-0 bg-gray-50/90 dark:bg-gray-950/90 backdrop-blur-xl py-6 px-10 rounded-t-[3rem] shadow-2xl z-30">
         <div className="hidden lg:flex flex-col">
-          <span className="text-[10px] font-black text-gray-700 uppercase tracking-widest">Global Action</span>
-          <span className="text-xs font-black text-gray-900">Apply all changes to batch</span>
+          <span className="text-xs font-bold text-gray-700 uppercase tracking-wide">Global Action</span>
+          <span className="text-sm font-bold text-gray-900">Apply all changes to batch</span>
         </div>
         <div className="flex gap-4 flex-1 max-w-xl">
-          <Button mode="outline" onClick={close} className="flex-1 h-12 rounded-xl font-black uppercase tracking-widest text-[11px] border-gray-300">Cancel</Button>
-          <Button loading={data ? loading : isLoading} type="submit" className="flex-1 h-12 rounded-xl shadow-md font-black uppercase tracking-widest text-[11px]">
+          <Button mode="outline" onClick={close} className="flex-1 h-12 rounded-xl font-bold uppercase tracking-wide text-xs border-gray-300">Cancel</Button>
+          <Button loading={data ? loading : isLoading} type="submit" className="flex-1 h-12 rounded-xl shadow-md font-bold uppercase tracking-wide text-xs">
             {data ? "Commit Batch" : "Publish Batch"}
           </Button>
         </div>

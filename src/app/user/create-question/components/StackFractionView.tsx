@@ -526,7 +526,7 @@ export default function StackFractionView({
             return (
               <div
                 key={`${group.id}-${doc.id}-${qIndex}`}
-                className={`group flex items-center justify-between rounded-md bg-purple-100 px-3 py-2 shadow-md hover:bg-purple-200 dark:bg-purple-900 ${isArrangeMode && canDragDrop && !disabled ? "cursor-move" : "cursor-default"} ${isRTL ? "text-rtl" : ""}`}
+                className={`group flex items-center justify-between rounded-md bg-white px-3 py-2 shadow-sm border border-gray-200 hover:bg-gray-50 dark:bg-gray-800 ${isArrangeMode && canDragDrop && !disabled ? "cursor-move" : "cursor-default"} ${isRTL ? "text-rtl" : ""}`}
               >
                 <div className="flex flex-1 items-center gap-2">
                   <span className="font-bold text-black pl-2">
@@ -535,7 +535,7 @@ export default function StackFractionView({
                   <div className="flex flex-1 justify-start">
                     <div className="flex flex-col items-end text-right">
                       {/* Numerator */}
-                      <div className="-mt-1 w-full text-right font-semibold text-black dark:text-white">
+                      <div className="-mt-1 w-full text-right text-black dark:text-white">
                         {numeratorLines.length > 0 ? (
                           (() => {
                             let lineStartIndex = 0;
@@ -573,7 +573,7 @@ export default function StackFractionView({
                         style={{ width: "100%", maxWidth: "180px" }}
                       />
                       {/* Denominator */}
-                      <div className="min-h-[1rem] w-full text-right font-semibold text-black dark:text-white">
+                      <div className="min-h-[1rem] w-full text-right text-black dark:text-white">
                         {denominatorLines.length > 0 ? (
                           (() => {
                             let lineStartIndex = numeratorNumberCount;

@@ -80,11 +80,12 @@ export default function Questions({
       modalSize="6xl"
       onChange={() => setIsOpen(false)}
       isOpen={isOpen}
+      hideCloseButton={true}
     >
       <div className="relative w-full px-3 py-1 antialiased" dir={isRTL ? "rtl" : "ltr"}>
         {/* Header Section */}
         <div className="flex items-center justify-between gap-4 py-2 border-b mb-2">
-          <div className="py-2 font-bold text-lg">{lessonName}</div>
+          <div className="py-2 font-medium text-lg">{lessonName}</div>
           <div className="flex items-center gap-2">
             <Button
               onClick={() => {
@@ -127,7 +128,7 @@ export default function Questions({
                   value={category.id}
                   className="rounded-lg border border-gray-200 dark:border-gray-800 shadow-sm scroll-mt-24 overflow-hidden bg-white dark:bg-gray-950 data-[state=open]:bg-blue-50/50 dark:data-[state=open]:bg-blue-900/10 data-[state=open]:border-blue-200 dark:data-[state=open]:border-blue-800 transition-all duration-300"
                 >
-                  <Accordion.Header className={`flex w-full items-center justify-between p-4 text-left font-semibold text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800 transition-colors ${isRTL ? "[&_svg]:left-2 [&_svg]:right-auto" : ""}`}>
+                  <Accordion.Header className={`flex w-full items-center justify-between p-4 text-left font-medium text-gray-900 hover:bg-gray-50 dark:text-white dark:hover:bg-gray-800 transition-colors ${isRTL ? "[&_svg]:left-2 [&_svg]:right-auto" : ""}`}>
                     <Accordion.Trigger className="flex-1 text-left outline-none">
                       {category.name}
                     </Accordion.Trigger>

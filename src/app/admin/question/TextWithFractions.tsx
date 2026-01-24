@@ -83,7 +83,7 @@ export default function TextWithFractions({
                   <td
                     style={{
                       textAlign: "center",
-                      fontWeight: "700",
+                      // fontWeight: "700",
                       lineHeight: "1",
                       padding: "0 2px 3px 2px",
                       whiteSpace: "nowrap",
@@ -108,7 +108,7 @@ export default function TextWithFractions({
                   <td
                     style={{
                       textAlign: "center",
-                      fontWeight: "700",
+                      // fontWeight: "700",
                       lineHeight: "1",
                       padding: "3px 2px 0 2px",
                       whiteSpace: "nowrap",

@@ -34,7 +34,7 @@ export default function QuestionList() {
       {selectBook && (
         <div className="flex h-full flex-1 border-t">
           {/* BOOK SELECTION - Desktop */}
-          <div className="hidden w-[280px] shrink-0 xl:block">
+          <div className="hidden w-[350px] shrink-0 xl:block">
             <BookSelection
               bookId={selectBook}
               selectedLessonId={lessonId}
@@ -72,7 +72,7 @@ export default function QuestionList() {
                 />
               </div>
             ) : (
-              <div className="flex h-full min-h-[100px] flex-1 items-center justify-center text-center font-bold text-red-500">
+              <div className="flex h-full min-h-[100px] flex-1 items-center justify-center text-center font-medium text-red-500">
                 Select A Lesson!
               </div>
             )}
@@ -91,7 +91,7 @@ export default function QuestionList() {
             )}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+              <h3 className="text-lg font-medium text-gray-800 dark:text-white">
                 Chapters
               </h3>
               <Button
@@ -121,7 +121,7 @@ export default function QuestionList() {
             )}
           >
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+              <h3 className="text-lg font-medium text-gray-800 dark:text-white">
                 Categories
               </h3>
               <Button

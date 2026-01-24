@@ -17,6 +17,7 @@ interface Props {
   actionTitle?: string;
   className?: string;
   modalSize?: "sm" | "md" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl";
+  hideCloseButton?: boolean;
 }
 
 const ModalLayout: React.FC<Props> = ({
@@ -31,6 +32,7 @@ const ModalLayout: React.FC<Props> = ({
   actionTitle,
   className,
   modalSize = "lg",
+  hideCloseButton = false,
 }) => {
   const modalRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
@@ -80,13 +82,16 @@ const ModalLayout: React.FC<Props> = ({
         className={`relative w-full ${sizeClasses[modalSize]} black:bg-slate-800 black:text-white max-h-[90vh] overflow-y-auto rounded-lg bg-white p-6 text-gray-900 shadow-2xl`}
       >
         {/* Close Button */}
-        <button
-          onClick={onChange}
-          className="absolute right-4 top-4 z-50 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-all hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-white"
-          aria-label="Close modal"
-        >
-          <IoMdClose size={20} />
-        </button>
+        {/* Close Button */}
+        {!hideCloseButton && (
+          <button
+            onClick={onChange}
+            className="absolute right-4 top-4 z-50 flex h-8 w-8 items-center justify-center rounded-full text-gray-400 transition-all hover:bg-gray-100 hover:text-gray-900 dark:hover:bg-gray-700 dark:hover:text-white"
+            aria-label="Close modal"
+          >
+            <IoMdClose size={20} />
+          </button>
+        )}
 
         {/* Optional Title and Description */}
         {title && <h2 className="mb-2 text-xl font-semibold">{title}</h2>}

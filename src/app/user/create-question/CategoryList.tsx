@@ -585,7 +585,7 @@ export default function CategoryList({
 
   if (chapterLoading) return <Loader />;
   return (
-    <aside className="flex h-[80vh] w-full flex-col rounded-xl bg-white p-5 shadow-md lg:fixed lg:h-[calc(100vh-100px)] lg:w-[420px] lg:overflow-hidden">
+    <aside className="flex h-[80vh] w-full flex-col rounded-xl bg-white p-5 shadow-md lg:sticky lg:top-20 lg:h-[calc(100vh-100px)] lg:w-full lg:overflow-hidden">
       {/* Fixed Header Section */}
       <div className="shrink-0 space-y-2 border-b border-gray-100 pb-3">
         {addedBooks && addedBooks.length > 0 && (

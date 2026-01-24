@@ -127,9 +127,9 @@ function renderTextWithFractions(text: string | null | undefined): React.ReactNo
           return (
             <table key={`frac-${index}`} cellPadding="0" cellSpacing="0" style={{ display: "inline-table", verticalAlign: "middle", marginLeft: "2px", marginRight: "2px", borderCollapse: "collapse", fontSize: "0.8em" }}>
               <tbody>
-                <tr><td style={{ textAlign: "center", fontWeight: "600", lineHeight: "1.2", padding: "0 2px 5px 2px", whiteSpace: "nowrap" }}>{numerator}</td></tr>
+                <tr><td style={{ textAlign: "center", lineHeight: "1.2", padding: "0 2px 5px 2px", whiteSpace: "nowrap" }}>{numerator}</td></tr>
                 <tr><td style={{ borderTop: "2px solid #000000", padding: "0", height: "1px" }}></td></tr>
-                <tr><td style={{ textAlign: "center", fontWeight: "600", lineHeight: "1", padding: "0 2px 0 2px", whiteSpace: "nowrap" }}>{denominator}</td></tr>
+                <tr><td style={{ textAlign: "center", lineHeight: "1", padding: "0 2px 0 2px", whiteSpace: "nowrap" }}>{denominator}</td></tr>
               </tbody>
             </table>
           );
@@ -155,7 +155,7 @@ export function renderStackFractionInline(question: string) {
     return (
       <span className="inline-flex items-center gap-1">
         <span>{renderTextWithFractions(numerator)}</span>
-        <span className="font-bold">--------</span>
+        <span>--------</span>
         <span>{renderTextWithFractions(denominator)}</span>
       </span>
     );
@@ -182,7 +182,7 @@ export function renderStackFractionVertical(question: string) {
 
     return (
       <span className="mr-2 inline-block align-top">
-        <div className="w-full whitespace-nowrap text-right font-semibold text-gray-900 border-none">
+        <div className="w-full whitespace-nowrap text-right text-gray-900 border-none">
           {numeratorLines.length > 0 ? numeratorLines.map((line, idx) => (
             <div key={idx} style={{ minHeight: "0", lineHeight: "1", marginBottom: "0", paddingBottom: "0" }}>
               <span style={{ display: "inline-block", minWidth: `${maxLen}ch`, textAlign: "right" }}>{renderTextWithFractions(line)}</span>
@@ -190,7 +190,7 @@ export function renderStackFractionVertical(question: string) {
           )) : <div style={{ minHeight: "0", lineHeight: "1" }}></div>}
         </div>
         <div className="border-t border-gray-700" style={{ minWidth: `${maxLen + 1}ch`, marginTop: "-1px", marginBottom: "2px", height: "1px" }} />
-        <div className="w-full whitespace-nowrap text-right font-semibold text-gray-900" style={{ minHeight: "0", lineHeight: "1", marginTop: "1px" }}>
+        <div className="w-full whitespace-nowrap text-right text-gray-900" style={{ minHeight: "0", lineHeight: "1", marginTop: "1px" }}>
           {denominatorLines.length > 0 ? denominatorLines.map((line, idx) => (
             <div key={idx} style={{ minHeight: "0", lineHeight: "1", marginBottom: "0", paddingBottom: "0" }}>
               <span style={{ display: "inline-block", minWidth: `${maxLen}ch`, textAlign: "right" }}>{renderTextWithFractions(line)}</span>
@@ -332,7 +332,7 @@ export const QuestionComponent = ({ isRTL, ...set }: any) => {
                                     const q = rowIndex * 6 + localQ;
                                     return (
                                       <div key={q} className="flex items-start gap-1">
-                                        <span className="font-bold text-gray-700">{getFormattedNumber(q, item.numbering || "roman")}</span>
+                                        <span className="text-gray-700">{getFormattedNumber(q, item.numbering || "roman")}</span>
                                         {renderStackFractionVertical(ques.question ?? "")}
                                       </div>
                                     );
@@ -447,7 +447,7 @@ export const QuestionComponent = ({ isRTL, ...set }: any) => {
                             const q = rowIndex * 6 + localQ;
                             return (
                               <div key={q} className="flex items-start gap-1">
-                                <span className="font-bold text-gray-700">{getFormattedNumber(q, group.numbering || "roman")}</span>
+                                <span className="text-gray-700">{getFormattedNumber(q, group.numbering || "roman")}</span>
                                 {renderStackFractionVertical(ques.question ?? "")}
                               </div>
                             );
